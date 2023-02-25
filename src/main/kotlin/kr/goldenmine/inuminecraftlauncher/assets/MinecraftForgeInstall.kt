@@ -1,6 +1,8 @@
-package kr.goldenmine.inuminecraftlauncher.assets.forge
+package kr.goldenmine.inuminecraftlauncher.assets
 
 import com.google.gson.annotations.SerializedName
+import kr.goldenmine.inuminecraftlauncher.assets.forge.Data
+import kr.goldenmine.inuminecraftlauncher.assets.forge.Processor
 import kr.goldenmine.inuminecraftlauncher.assets.version.libraries.Library
 
 
