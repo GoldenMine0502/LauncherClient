@@ -6,7 +6,7 @@ import kr.goldenmine.inuminecraftlauncher.assets.AssetService
 import kr.goldenmine.inuminecraftlauncher.assets.MinecraftForgeVersion
 import kr.goldenmine.inuminecraftlauncher.assets.MinecraftPackage
 import kr.goldenmine.inuminecraftlauncher.assets.MinecraftVersion
-import kr.goldenmine.inuminecraftlauncher.assets.forge.MinecraftForgeInstall
+import kr.goldenmine.inuminecraftlauncher.assets.MinecraftForgeInstall
 import kr.goldenmine.inuminecraftlauncher.assets.version.libraries.Library
 import kr.goldenmine.inuminecraftlauncher.download.*
 import kr.goldenmine.inuminecraftlauncher.download.java.writeResponseBodyToDisk
