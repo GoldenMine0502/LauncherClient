@@ -7,4 +7,6 @@ data class Artifact(
     @SerializedName("sha1") val sha1: String,
     @SerializedName("size") val size: Long,
     @SerializedName("url") val url: String
-)
+) {
+
+}

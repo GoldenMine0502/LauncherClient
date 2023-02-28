@@ -214,27 +214,7 @@ class MinecraftDownloader(
         }
     }
 
-    fun convertMavenStringToRoute(maven: String): String {
-        val split = maven.split(":")
-
-        val builder = StringBuilder()
-
-        // .이 곧 폴더이므로
-        builder.append(split[0].replace(".", "/"))
-        builder.append("/")
-        builder.append(split[1])
-        builder.append("/")
-        builder.append(split[2])
-
-        // 파일 이름
-        builder.append("/${split[1]}-${split[2]}.jar")
-
-        return builder.toString()
-    }
-
     fun downloadForgeInstallProfile() {
-        val javaPath = launcherSettings.javaRepository.primary?.absolutePath ?: throw MinecraftException("no java")
-
         val minecraftForgeInstallFile = File(
             launcherSettings.launcherDirectories.forgeDirectory,
             "${launcherSettings.instanceSettings.forgeInstallerFileFolder}/install_profile.json"
@@ -243,60 +223,6 @@ class MinecraftDownloader(
             gson.fromJson(minecraftForgeInstallFile.readText(), MinecraftForgeInstall::class.java)
 
         downloadLibraries(minecraftForgeInstall.libraries)
-
-
-
-//        val replacements = minecraftForgeInstall.processors
-//            .asSequence()
-//            .flatMap { it.args }
-//            .filter { it.startsWith("{") && it.endsWith("}") }
-//            .map { it.substring(1, it.length - 1) } // 중괄호 제거
-//            .filter { minecraftForgeInstall.data.containsKey(it) }
-//            .map { Pair("{$it}", minecraftForgeInstall.data[it]!!.client) }
-//            .toMap()
-//
-//
-//        minecraftForgeInstall.processors.forEach { processor ->
-//            val builder = CommandConcatenator(replacements, mapOf())
-//
-//            fun getAbsolutePath(route: String): String {
-//                return File(
-//                    launcherSettings.launcherDirectories.librariesDirectory,
-//                    convertMavenStringToRoute(route)
-//                ).absolutePath
-//            }
-//
-//            // java file
-//            builder.appendString(javaPath)
-//            builder.appendString("-jar")
-//            builder.appendString(getAbsolutePath(processor.jar))
-//
-//            // classpath
-//            val cp = processor.classpath.joinToString(OS_CLASSPATH_SEPARATOR) { getAbsolutePath(it) } //+
-////                    OS_CLASSPATH_SEPARATOR +
-////                    getAbsolutePath(processor.jar)
-//            builder.appendString("-cp")
-//            builder.appendString(cp)
-////            builder.appendString(OS_CLASSPATH_SEPARATOR)
-////            builder.appendString(getAbsolutePath(processor.jar))
-////            processor.classpath.forEach {
-////                builder.appendString(getAbsolutePath(it))
-////            }
-//
-//            // args
-//            processor.args.forEach {
-//                builder.processLine(it)
-//            }
-//            builder.removeLastCharacterIfBlank()
-//
-//            log.info(builder.toString())
-//            log.info("\n" + builder.toString().replace("jar:", "jar:\n").replace(" -", "\n -"))
-//
-//            runProcessAndWait(builder.toList(), "UTF-8")
-//
-//            // TODO check output hash
-//            // ~~~
-//        }
     }
 
     fun downloadForge() {
