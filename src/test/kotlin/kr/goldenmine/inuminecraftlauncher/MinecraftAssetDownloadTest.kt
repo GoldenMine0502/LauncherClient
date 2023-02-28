@@ -35,7 +35,7 @@ class MinecraftAssetDownloadTest {
 
         val launcher = MinecraftLauncher(launcherSettings, builder)
 //        launcher.download()
-        launcher.preProcess()
+//        launcher.preProcess()
         launcher.launchMinecraft()
     }
 
