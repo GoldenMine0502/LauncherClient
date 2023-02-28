@@ -9,20 +9,15 @@ import kr.goldenmine.inuminecraftlauncher.assets.forge.ArtifactAdditional
 import kr.goldenmine.inuminecraftlauncher.assets.version.arguments.Arguments
 import kr.goldenmine.inuminecraftlauncher.assets.version.arguments.ArgumentsDeserializer
 import kr.goldenmine.inuminecraftlauncher.assets.version.libraries.Artifact
-import kr.goldenmine.inuminecraftlauncher.launcher.impl.MinecraftException
 import kr.goldenmine.inuminecraftlauncher.util.*
-import net.minecraftforge.installer.SimpleInstaller
-import net.minecraftforge.installer.json.Util
 import net.technicpack.utilslib.OperatingSystem
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import java.io.File
-import java.lang.reflect.InvocationTargetException
 import java.net.URL
 import java.net.URLClassLoader
 import java.util.jar.Attributes
 import java.util.jar.JarFile
-import java.util.stream.Collectors
 
 
 class MinecraftLauncher(
@@ -112,11 +107,14 @@ class MinecraftLauncher(
     }
 
     fun installForge() {
-        val forgePath = File(launcherSettings.launcherDirectories.forgeDirectory, launcherSettings.instanceSettings.forgeInstallerFileName).absolutePath
-        val classLoader = URLClassLoader(arrayOf(URL("file://$forgePath")))
-
-        val className = "net.minecraftforge.installer.actions.ClientInstall"
-        val loadedClass = classLoader.loadClass(className)
+//        val forgePath = File(
+//            launcherSettings.launcherDirectories.forgeDirectory,
+//            launcherSettings.instanceSettings.forgeInstallerFileName
+//        ).absolutePath
+//        val classLoader = URLClassLoader(arrayOf(URL("file://$forgePath")))
+//
+//        val className = "net.minecraftforge.installer.actions.ClientInstall"
+//        val loadedClass = classLoader.loadClass(className)
 
 //        val clientInstall = loadedClass.newInstance() as ClientInstall
 //        val clientInstall = ClientInstall()
@@ -149,7 +147,7 @@ class MinecraftLauncher(
 //        }
 //        myClass.doSomething()
 
-        val javaPath = launcherSettings.javaRepository.primary?.absolutePath ?: throw MinecraftException("no java")
+//        val javaPath = launcherSettings.javaRepository.primary?.absolutePath ?: throw MinecraftException("no java")
 
         val minecraftForgeInstallFile = File(
             launcherSettings.launcherDirectories.forgeDirectory,
@@ -167,32 +165,36 @@ class MinecraftLauncher(
             .map { Pair("{$it}", minecraftForgeInstall.data[it]!!.client) }
             .toMap()
 
-        fun replaceTextInSequreBracket(key: String): String {
-            return ArtifactAdditional(key.substring(1, key.length - 1)).getLocalPath(launcherSettings.launcherDirectories.librariesDirectory).absolutePath
-        }
-
-        fun replaceTextInBrace(key: String): String {
-            return replacements[key] ?: key // 있으면 교체, 없으면 그대로
-        }
-
         minecraftForgeInstall.processors.forEach { proc ->
             // processors.forEach랑 똑같음
             log.info("===============================================================================")
 
-            val outputs: MutableMap<String, String> = HashMap()
+            val outputs = HashMap<String, String>()
+            val caches = HashMap<String, ArtifactAdditional>() // key는 Artifact의 path로 설정
+
+            fun getArtifactAdditional(key: String): String {
+                val additional = ArtifactAdditional(key.substring(1, key.length - 1))
+                caches[additional.path] = additional
+                return additional.getLocalPath(launcherSettings.launcherDirectories.librariesDirectory).absolutePath
+            }
+
+            fun applyReplacements(key: String): String {
+                return replacements[key] ?: key
+            }
+
             if (proc.outputs.isNotEmpty()) {
                 var miss = false
                 log.info("  Cache: ")
                 for (e in proc.outputs.entries) {
                     // 키 처리
                     val key = if (e.key[0] == '[' && e.key[e.key.length - 1] == ']') {
-                        replaceTextInSequreBracket(e.key)
+                        getArtifactAdditional(e.key)
                     } else { // 중괄호일때 처리인듯
-                        replaceTextInBrace(e.key)
+                        applyReplacements(e.key) // 있으면 교체, 없으면 그대로
                     }
 
                     // 값 처리
-                    val value = replaceTextInBrace(e.value)
+                    val value = applyReplacements(e.value)
 
                     // 출력 결과 체크 맵에 넣기
                     outputs[key] = value
@@ -222,12 +224,15 @@ class MinecraftLauncher(
                 }
             }
 
-            val jar: File = proc.jar.getLocalPath(librariesDir)
+            fun findArtifactFromName(name: String): Artifact {
+                return minecraftForgeInstall.libraries.first { it.name == name }.downloads.artifact
+            }
+
+            val jar =
+                findArtifactFromName(proc.jar).getLocalPath(launcherSettings.launcherDirectories.librariesDirectory)
             if (!jar.exists() || !jar.isFile) {
                 log.error("  Missing Jar for processor: " + jar.absolutePath)
             }
-
-            // Locate main class in jar file
 
             // Locate main class in jar file
             val jarFile = JarFile(jar)
@@ -235,51 +240,67 @@ class MinecraftLauncher(
             jarFile.close()
 
             if (mainClass == null || mainClass.isEmpty()) {
-                error("  Jar does not have main class: " + jar.absolutePath)
+                log.error("  Jar does not have main class: " + jar.absolutePath)
                 return
             }
-            monitor.message("  MainClass: $mainClass", MessagePriority.LOW)
+            log.info("  MainClass: $mainClass")
 
             val classpath: MutableList<URL> = ArrayList()
             val err = StringBuilder()
-            monitor.message("  Classpath:", MessagePriority.LOW)
-            monitor.message("    " + jar.absolutePath, MessagePriority.LOW)
+            log.info("  Classpath:")
+            log.info("    " + jar.absolutePath)
             classpath.add(jar.toURI().toURL())
-            for (dep in proc.getClasspath()) {
-                val lib: File = dep.getLocalPath(librariesDir)
-                if (!lib.exists() || !lib.isFile) err.append("\n  ").append(dep.getDescriptor())
+            for (dep in proc.classpath) {
+                val artifact = findArtifactFromName(dep)
+                val lib = artifact.getLocalPath(launcherSettings.launcherDirectories.librariesDirectory)
+                val additional = caches[artifact.path]
+
+                if (!lib.exists() || !lib.isFile) err.append("\n  ").append(additional?.descriptor)
                 classpath.add(lib.toURI().toURL())
-                monitor.message("    " + lib.absolutePath, MessagePriority.LOW)
+                log.info("    " + lib.absolutePath)
             }
-            if (err.length > 0) {
-                error("  Missing Processor Dependencies: $err")
-                return false
+            if (err.isNotEmpty()) {
+                log.error("  Missing Processor Dependencies: $err")
+                return@forEach
             }
 
-            val args: MutableList<String> = ArrayList()
-            for (arg in proc.getArgs()) {
+            val args = ArrayList<String>()
+            for (arg in proc.args) {
                 val start = arg[0]
                 val end = arg[arg.length - 1]
                 if (start == '[' && end == ']') //Library
-                    args.add(
-                        Artifact.from(arg.substring(1, arg.length - 1)).getLocalPath(librariesDir).getAbsolutePath()
-                    ) else args.add(
-                    Util.replaceTokens(data, arg)
-                )
+                    args.add(getArtifactAdditional(arg))
+                else args.add(applyReplacements(arg))
             }
-            if (err.length > 0) {
-                error("  Missing Processor data values: $err")
-                return false
+            if (err.isNotEmpty()) {
+                log.error("  Missing Processor data values: $err")
+                return@forEach
             }
-            monitor.message("  Args: " + args.stream().map<String> { a: String ->
-                if (a.indexOf(
-                        ' '
-                    ) != -1 || a.indexOf(',') != -1
-                ) '"'.toString() + a + '"' else a
-            }.collect(Collectors.joining(", ")), MessagePriority.LOW)
+            val argsToStr = args.asSequence().map { a: String ->
+                if (a.indexOf(' ') != -1 || a.indexOf(',') != -1)
+                    '"'.toString() + a + '"'
+                else
+                    a
+            }.joinToString()
+            log.info("  Args: $argsToStr")
 
-            val cl: ClassLoader = URLClassLoader(classpath.toTypedArray<URL>(), getParentClassloader())
-            // Set the thread context classloader to be our newly constructed one so that service loaders work
+            @Synchronized
+            fun getParentClassloader(): ClassLoader? { //Reflectively try and get the platform classloader, done this way to prevent hard dep on J9.
+                //in 9+ the changed from 1.8 to just 9. So this essentially detects if we're <9
+                if (!System.getProperty("java.version").startsWith("1.")) {
+                    try {
+                        val getPlatform = ClassLoader::class.java.getDeclaredMethod("getPlatformClassLoader")
+                        return getPlatform.invoke(null) as ClassLoader
+                    } catch (e: Exception) {
+                        log.error("No platform classloader: " + System.getProperty("java.version"), e)
+                    }
+                }
+
+                return null
+            }
+
+            val cl = URLClassLoader(classpath.toTypedArray(), getParentClassloader())
+
             // Set the thread context classloader to be our newly constructed one so that service loaders work
             val currentThread = Thread.currentThread()
             val threadClassloader = currentThread.contextClassLoader
@@ -288,60 +309,45 @@ class MinecraftLauncher(
                 val cls = Class.forName(mainClass, true, cl)
                 val main = cls.getDeclaredMethod("main", Array<String>::class.java)
                 main.invoke(null, args.toTypedArray() as Any)
-            } catch (ite: InvocationTargetException) {
-                val e = ite.cause
-                e!!.printStackTrace()
-                if (e!!.message == null) error(
-                    """
-            Failed to run processor: ${e!!.javaClass.name}
-            See log for more details.
-            """.trimIndent()
-                ) else error(
-                    """
-            Failed to run processor: ${e!!.javaClass.name}:${e!!.message}
-            See log for more details.
-            """.trimIndent()
-                )
-                return false
-            } catch (e: Throwable) {
+            } catch (e: Exception) {
                 e.printStackTrace()
-                if (e.message == null) error(
+                if (e.message == null) log.error(
                     """
-            Failed to run processor: ${e.javaClass.name}
-            See log for more details.
-            """.trimIndent()
-                ) else error(
+                        Failed to run processor: ${e.javaClass.name}
+                        See log for more details.
+                        """.trimIndent()
+                ) else log.error(
                     """
-            Failed to run processor: ${e.javaClass.name}:${e.message}
-            See log for more details.
-            """.trimIndent()
+                        Failed to run processor: ${e.javaClass.name}:${e.message}
+                        See log for more details.
+                        """.trimIndent()
                 )
-                return false
+                return@forEach
             } finally {
                 // Set back to the previous classloader
                 currentThread.contextClassLoader = threadClassloader
             }
 
-            if (!outputs.isEmpty()) {
-                for ((key, value): Map.Entry<String, String> in outputs) {
+            if (outputs.isNotEmpty()) {
+                for ((key, value) in outputs) {
                     val artifact = File(key)
                     if (!artifact.exists()) {
                         err.append("\n    ").append(key).append(" missing")
                     } else {
-                        val sha: String = DownloadUtils.getSha1(artifact)
+                        val sha: String = getFileSHA1(artifact)
                         if (sha == value) {
-                            log("  Output: $key Checksum Validated: $sha")
+                            log.info("  Output: $key Checksum Validated: $sha")
                         } else {
                             err.append("\n    ").append(key)
                                 .append("\n      Expected: ").append(value)
                                 .append("\n      Actual:   ").append(sha)
-                            if (!SimpleInstaller.debug && !artifact.delete()) err.append("\n      Could not delete file")
+//                            if (!SimpleInstaller.debug && !artifact.delete()) err.append("\n      Could not delete file")
                         }
                     }
                 }
-                if (err.length > 0) {
-                    error("  Processor failed, invalid outputs:$err")
-                    return false
+                if (err.isNotEmpty()) {
+                    log.error("  Processor failed, invalid outputs:$err")
+                    return
                 }
             }
 
@@ -390,23 +396,23 @@ class MinecraftLauncher(
 //        }
     }
 
-    fun convertMavenStringToRoute(maven: String): String {
-        val split = maven.split(":")
-
-        val builder = StringBuilder()
-
-        // .이 곧 폴더이므로
-        builder.append(split[0].replace(".", "/"))
-        builder.append("/")
-        builder.append(split[1])
-        builder.append("/")
-        builder.append(split[2])
-
-        // 파일 이름
-        builder.append("/${split[1]}-${split[2]}.jar")
-
-        return builder.toString()
-    }
+//    fun convertMavenStringToRoute(maven: String): String {
+//        val split = maven.split(":")
+//
+//        val builder = StringBuilder()
+//
+//        // .이 곧 폴더이므로
+//        builder.append(split[0].replace(".", "/"))
+//        builder.append("/")
+//        builder.append(split[1])
+//        builder.append("/")
+//        builder.append(split[2])
+//
+//        // 파일 이름
+//        builder.append("/${split[1]}-${split[2]}.jar")
+//
+//        return builder.toString()
+//    }
 //
 //    // https://github.com/MinecraftForge/Installer/blob/2.0/src/main/java/net/minecraftforge/installer/actions/PostProcessors.java
 //    fun process(librariesDir: File, minecraft: File, root: File, installer: File): Boolean {

@@ -2,22 +2,18 @@ package kr.goldenmine.inuminecraftlauncher.assets.forge
 
 import java.io.File
 
-class ArtifactAdditional {
-    private val domain: String
-    private val name: String
-    private val version: String
-    private val classifier: String?
-    private val ext: String
+class ArtifactAdditional(val descriptor: String) {
+    val domain: String
+    val name: String
+    val version: String
+    val classifier: String?
+    val ext: String
 
     //Caches so we don't rebuild every time we're asked.
-    private val path: String
-    private val file: String
-    private val descriptor: String
+    val path: String
+    val file: String
 
-
-    constructor(descriptor: String) {
-        this.descriptor = descriptor
-
+    init {
         val pts = descriptor.split(":".toRegex()).dropLastWhile { it.isEmpty() }.toTypedArray()
         domain = pts[0]
         name = pts[1]
@@ -30,10 +26,8 @@ class ArtifactAdditional {
             ext = "jar"
         }
         version = pts[2]
-
         classifier = if(pts.size > 3) pts[3] else null
         file = "$name-$version" + (if(classifier != null) "-$classifier" else "") + '.' + ext
-
         this.path = this.domain.replace('.', '/') + '/' + name + '/' + version + '/' + file
     }
 
