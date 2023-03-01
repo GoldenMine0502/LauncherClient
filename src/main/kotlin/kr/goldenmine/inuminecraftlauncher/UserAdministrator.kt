@@ -1,4 +1,4 @@
-package kr.goldenmine.inuminecraftlauncher.user
+package kr.goldenmine.inuminecraftlauncher
 
 import kr.goldenmine.inuminecraftlauncher.launcher.LauncherDirectories
 import net.technicpack.launcher.io.TechnicUserStore
