@@ -133,4 +133,12 @@ class MinecraftAssetDownloadTest {
         val downloader = MinecraftDownloader(launcherSettings)
         downloader.downloadForge()
     }
+
+    @Test
+    fun testProcess() {
+        val builder = MinecraftCommandBuilder(launcherSettings, minecraftAccount)
+        val launcher = MinecraftLauncher(launcherSettings, builder)
+
+        launcher.preProcess()
+    }
 }

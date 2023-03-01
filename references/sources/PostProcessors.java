@@ -282,6 +282,7 @@ public class PostProcessors {
         for (String line : message.split("\n"))
             monitor.message(line);
     }
+
     private void log(String message) {
         for (String line : message.split("\n"))
             monitor.message(line);

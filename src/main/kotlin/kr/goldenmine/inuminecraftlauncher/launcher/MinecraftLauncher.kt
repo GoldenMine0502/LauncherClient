@@ -24,7 +24,7 @@ class MinecraftLauncher(
     private val launcherSettings: LauncherSettings,
     private val minecraftCommandBuilder: MinecraftCommandBuilder
 ) {
-    private val log: Logger = LoggerFactory.getLogger(MinecraftDownloader::class.java)
+    private val log: Logger = LoggerFactory.getLogger(MinecraftLauncher::class.java)
 
     private val gson = GsonBuilder().registerTypeAdapter(Arguments::class.java, ArgumentsDeserializer()).create()
 
@@ -61,7 +61,7 @@ class MinecraftLauncher(
         val nativeFiles = launcherSettings.launcherDirectories.temporaryDirectory.listFiles()
             ?.asSequence()
             ?.filter { file ->
-                log.info(file.name)
+//                log.info(file.name)
                 availableVersions.any { version ->
                     file.name.contains(version.first) && file.name.contains(version.second)
                 }
@@ -182,19 +182,31 @@ class MinecraftLauncher(
                 return replacements[key] ?: key
             }
 
-            if (proc.outputs.isNotEmpty()) {
+            fun replaceValue(value: String): String {
+                return if (value.first() == '[' && value.last() == ']') {
+                    getArtifactAdditional(value)
+                } else if(value.first() == '{' && value.last() == '}') { // 중괄호일때 처리
+                    val replaced = applyReplacements(value) // 있으면 교체, 없으면 그대로
+
+                    if(replaced.first() == '[' && replaced.last() == ']') {
+                         getArtifactAdditional(replaced)
+                    } else {
+                        value
+                    }
+                } else {
+                    value
+                }
+            }
+
+            if (!proc.outputs.isNullOrEmpty()) {
                 var miss = false
                 log.info("  Cache: ")
                 for (e in proc.outputs.entries) {
                     // 키 처리
-                    val key = if (e.key[0] == '[' && e.key[e.key.length - 1] == ']') {
-                        getArtifactAdditional(e.key)
-                    } else { // 중괄호일때 처리인듯
-                        applyReplacements(e.key) // 있으면 교체, 없으면 그대로
-                    }
+                    val key = replaceValue(e.key)
 
                     // 값 처리
-                    val value = applyReplacements(e.value)
+                    val value = replaceValue(e.value)
 
                     // 출력 결과 체크 맵에 넣기
                     outputs[key] = value
@@ -258,6 +270,7 @@ class MinecraftLauncher(
                 if (!lib.exists() || !lib.isFile) err.append("\n  ").append(additional?.descriptor)
                 classpath.add(lib.toURI().toURL())
                 log.info("    " + lib.absolutePath)
+//                log.info("    " + lib.toURI().toURL())
             }
             if (err.isNotEmpty()) {
                 log.error("  Missing Processor Dependencies: $err")
@@ -266,22 +279,19 @@ class MinecraftLauncher(
 
             val args = ArrayList<String>()
             for (arg in proc.args) {
-                val start = arg[0]
-                val end = arg[arg.length - 1]
-                if (start == '[' && end == ']') //Library
-                    args.add(getArtifactAdditional(arg))
-                else args.add(applyReplacements(arg))
+//                val start = arg[0]
+//                val end = arg[arg.length - 1]
+
+                val result = replaceValue(arg)
+                args.add(result)
+//                if (start == '[' && end == ']') //Library
+//                    args.add(getArtifactAdditional(arg))
+//                else args.add(applyReplacements(arg))
             }
-            if (err.isNotEmpty()) {
-                log.error("  Missing Processor data values: $err")
-                return@forEach
-            }
-            val argsToStr = args.asSequence().map { a: String ->
-                if (a.indexOf(' ') != -1 || a.indexOf(',') != -1)
-                    '"'.toString() + a + '"'
-                else
-                    a
-            }.joinToString()
+
+            val argsToStr = args.asSequence().map { a ->
+                if (a.indexOf(' ') != -1 || a.indexOf(',') != -1) "\"$a\"" else a
+            }.joinToString(" ")
             log.info("  Args: $argsToStr")
 
             @Synchronized
@@ -308,15 +318,10 @@ class MinecraftLauncher(
             try {
                 val cls = Class.forName(mainClass, true, cl)
                 val main = cls.getDeclaredMethod("main", Array<String>::class.java)
-                main.invoke(null, args.toTypedArray() as Any)
+                main.invoke(null, args.toTypedArray())
             } catch (e: Exception) {
                 e.printStackTrace()
-                if (e.message == null) log.error(
-                    """
-                        Failed to run processor: ${e.javaClass.name}
-                        See log for more details.
-                        """.trimIndent()
-                ) else log.error(
+                log.error(
                     """
                         Failed to run processor: ${e.javaClass.name}:${e.message}
                         See log for more details.
@@ -635,6 +640,9 @@ class MinecraftLauncher(
 
         // copy all files to virtual
         copyVirtual()
+
+        // run processors
+        installForge()
 
         // copy forge file to libraries folder
 //        val forgeSrcFile =
