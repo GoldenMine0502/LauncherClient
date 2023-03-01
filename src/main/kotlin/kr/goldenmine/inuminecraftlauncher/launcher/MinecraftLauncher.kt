@@ -6,6 +6,7 @@ import kr.goldenmine.inuminecraftlauncher.assets.MinecraftForgeInstall
 import kr.goldenmine.inuminecraftlauncher.assets.MinecraftPackage
 import kr.goldenmine.inuminecraftlauncher.assets.MinecraftVersion
 import kr.goldenmine.inuminecraftlauncher.assets.forge.ArtifactAdditional
+import kr.goldenmine.inuminecraftlauncher.assets.forge.Data
 import kr.goldenmine.inuminecraftlauncher.assets.version.arguments.Arguments
 import kr.goldenmine.inuminecraftlauncher.assets.version.arguments.ArgumentsDeserializer
 import kr.goldenmine.inuminecraftlauncher.assets.version.libraries.Artifact
@@ -156,17 +157,43 @@ class MinecraftLauncher(
         val minecraftForgeInstall =
             gson.fromJson(minecraftForgeInstallFile.readText(), MinecraftForgeInstall::class.java)
 
-        val replacements = minecraftForgeInstall.processors
-            .asSequence()
-            .flatMap { it.args }
-            .filter { it.startsWith("{") && it.endsWith("}") }
-            .map { it.substring(1, it.length - 1) } // 중괄호 제거
-            .filter { minecraftForgeInstall.data.containsKey(it) }
-            .map { Pair("{$it}", minecraftForgeInstall.data[it]!!.client) }
-            .toMap()
+//        val replacements = minecraftForgeInstall.processors
+//            .asSequence()
+//            .flatMap { it.args }
+//            .filter { it.startsWith("{") && it.endsWith("}") }
+//            .map { it.substring(1, it.length - 1) } // 중괄호 제거
+//            .filter { minecraftForgeInstall.data.containsKey(it) }
+//            .map { Pair("{$it}", minecraftForgeInstall.data[it]!!.client) }
+//            .toMap()
+//            .toMutableMap()
 
+        val replacements = minecraftForgeInstall.data
+            .map {
+                Pair(it.key, it.value.client)
+            }
+            .toMap()
+            .toMutableMap()
+
+        // MINECRAFT_JAR는 수동으로 추가
+//        val minecraftInstanceFile = File(
+//            launcherSettings.launcherDirectories.instancesDirectory,
+//            "${launcherSettings.instanceSettings.minecraftVersion}/bin/minecraft.jar"
+//        )
+        val minecraftClientFile = File(
+            launcherSettings.launcherDirectories.librariesDirectory,
+            "versions/${launcherSettings.instanceSettings.minecraftVersion}.jar"
+        )
+
+        // TODO 왜 맵에 넣는건 안될까
+        replacements["MINECRAFT_JAR"] = minecraftClientFile.absolutePath
+
+        for ((key, value) in replacements) {
+            log.info("$key: $value")
+        }
+//        log.info("{MINECRAFT_JAR}: ${replacements["{MINECRAFT_JAR}"]}")
+
+        // run processors
         minecraftForgeInstall.processors.forEach { proc ->
-            // processors.forEach랑 똑같음
             log.info("===============================================================================")
 
             val outputs = HashMap<String, String>()
@@ -179,22 +206,21 @@ class MinecraftLauncher(
             }
 
             fun applyReplacements(key: String): String {
-                return replacements[key] ?: key
+//                if(key == "{MINECRAFT_JAR}") return minecraftClientFile.absolutePath
+                return replacements[key.substring(1, key.length - 1)] ?: key
             }
 
             fun replaceValue(value: String): String {
                 return if (value.first() == '[' && value.last() == ']') {
                     getArtifactAdditional(value)
-                } else if(value.first() == '{' && value.last() == '}') { // 중괄호일때 처리
+                } else { // 중괄호일때 처리
                     val replaced = applyReplacements(value) // 있으면 교체, 없으면 그대로
 
-                    if(replaced.first() == '[' && replaced.last() == ']') {
-                         getArtifactAdditional(replaced)
+                    if (replaced.first() == '[' && replaced.last() == ']') {
+                        getArtifactAdditional(replaced)
                     } else {
                         value
                     }
-                } else {
-                    value
                 }
             }
 
@@ -225,7 +251,7 @@ class MinecraftLauncher(
                             log.info("      Expected: $value")
                             log.info("      Actual:   $sha")
                             miss = true
-                            artifact.delete()
+//                            artifact.delete()
                         }
                     }
                 }
@@ -282,8 +308,18 @@ class MinecraftLauncher(
 //                val start = arg[0]
 //                val end = arg[arg.length - 1]
 
-                val result = replaceValue(arg)
+                // TODO Map 작동 안해서 하드코드
+                val result = if (arg.contains("MINECRAFT_JAR"))
+                    minecraftClientFile.absolutePath
+                else if (arg.contains("BINPATCH"))
+                    File(
+                        launcherSettings.launcherDirectories.forgeDirectory,
+                        "${launcherSettings.instanceSettings.forgeInstallerFileFolder}/data/client.lzma"
+                    ).absolutePath
+                else
+                    replaceValue(arg)
                 args.add(result)
+                log.info("$arg $result")
 //                if (start == '[' && end == ']') //Library
 //                    args.add(getArtifactAdditional(arg))
 //                else args.add(applyReplacements(arg))
@@ -339,7 +375,7 @@ class MinecraftLauncher(
                     if (!artifact.exists()) {
                         err.append("\n    ").append(key).append(" missing")
                     } else {
-                        val sha: String = getFileSHA1(artifact)
+                        val sha = getFileSHA1(artifact)
                         if (sha == value) {
                             log.info("  Output: $key Checksum Validated: $sha")
                         } else {
@@ -352,7 +388,7 @@ class MinecraftLauncher(
                 }
                 if (err.isNotEmpty()) {
                     log.error("  Processor failed, invalid outputs:$err")
-                    return
+//                    return
                 }
             }
 
@@ -689,7 +725,7 @@ class MinecraftLauncher(
             val command = "$javaPath ${minecraftCommandBuilder.buildCommand()}"
             log.info(command)
 
-            val commandNewLine = command.replace(" -", " \n-").replace(";", ";\n")
+            val commandNewLine = command.replace(" -", " \n-").replace(";", ";\n").replace(":", ":\n")
             log.info(commandNewLine)
 
             if (OperatingSystem.getOperatingSystem() == OperatingSystem.OSX)
