@@ -94,8 +94,8 @@ class MainFrameController(
 
                 addLog("checking or downloading minecraft assets...")
                 downloader.download()
-                addLog("copying libraries...")
-                launcher.preProcess()
+//                addLog("copying libraries...")
+//                launcher.preProcess()
                 addLog("launching minecraft...")
                 val code = launcher.launchMinecraft()
                 addLog("process finished with exit code $code")

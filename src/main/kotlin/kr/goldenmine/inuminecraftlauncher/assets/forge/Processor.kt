@@ -13,6 +13,6 @@ class Processor(
     @SerializedName("jar") val jar: String,
     @SerializedName("classpath") val classpath: List<String>,
     @SerializedName("args") val args: List<String>,
-    @SerializedName("outputs") val outputs: Map<String, String>,
+    @SerializedName("outputs") val outputs: Map<String, String>?,
 ) {
 }
