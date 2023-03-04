@@ -17,7 +17,7 @@ import java.io.InputStreamReader
 class MinecraftAssetDownloadTest {
 
     private val temporaryDirectory = DefaultLauncherDirectories(File("inulauncher"))
-    private val instanceSettings = InstanceSettings("1.16.5", "1.16", "36.2.34", 8, true)
+    private val instanceSettings = InstanceSettings("1.16.5", "1.16", "36.2.34", 8, "inu1165", listOf())
     private val minecraftAccount = MinecraftAccount("test", "test", "test", "test")
     private val launcherSettings = LauncherSettings(temporaryDirectory,
         instanceSettings,

@@ -1,7 +1,7 @@
 package kr.goldenmine.inuminecraftlauncher.download.java
 
 import kr.goldenmine.inuminecraftlauncher.InstanceSettings
-import kr.goldenmine.inuminecraftlauncher.download.DownloaderRequest
+import kr.goldenmine.inuminecraftlauncher.download.ServerRequest
 import kr.goldenmine.inuminecraftlauncher.util.Compress
 import kr.goldenmine.inuminecraftlauncher.util.deleteRecursive
 import kr.goldenmine.inuminecraftlauncher.util.getFileMD5
@@ -55,18 +55,18 @@ class JavaRepository(
     fun checkMD5Java() {
         val downloader = downloaders[OperatingSystem.getOperatingSystem()]
         if (downloader != null) {
-            val md5 = DownloaderRequest.SERVICE.checkFile(downloader.requestFileName).execute().body()
+//            val md5 = ServerRequest.SERVICE.checkFile(downloader.requestFileName).execute().body()
 
             if(downloader.destFile.exists()) {
                 val fileMd5 = getFileMD5(downloader.destFile)
 
-                if (md5 == null) {
-                    throw RuntimeException("the file doesn't exist on the server")
-                }
+//                if (md5 == null) {
+//                    throw RuntimeException("the file doesn't exist on the server")
+//                }
 
-                if (md5 != fileMd5) {
-                    deleteRecursive(downloader.destFile.parentFile)
-                }
+//                if (md5 != fileMd5) {
+//                    deleteRecursive(downloader.destFile.parentFile)
+//                }
             } else {
                 log.info("no java. it should be downloaded.")
             }

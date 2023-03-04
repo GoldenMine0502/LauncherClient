@@ -29,7 +29,10 @@ class MinecraftCommandBuilder(
         replacements["\${auth_player_name}"] = minecraftAccount.userName
         replacements["\${version_name}"] = minecraftVersion.id
         replacements["\${game_directory}"] =
-            File(launcherSettings.launcherDirectories.instancesDirectory, minecraftVersion.id).absolutePath
+            File(
+                launcherSettings.launcherDirectories.instancesDirectory,
+                launcherSettings.instanceSettings.instanceName
+            ).absolutePath
         replacements["\${assets_root}"] = launcherSettings.launcherDirectories.assetsDirectory.absolutePath
         replacements["\${assets_index_name}"] = minecraftVersion.assetIndex.id
         replacements["\${auth_uuid}"] = minecraftAccount.uuid.replace("-", "").lowercase()
@@ -39,7 +42,10 @@ class MinecraftCommandBuilder(
         replacements["\${resolution_width}"] = launcherSettings.width.toString()
         replacements["\${resolution_height}"] = launcherSettings.height.toString()
         replacements["\${natives_directory}"] =
-            File(launcherSettings.launcherDirectories.instancesDirectory, "${minecraftVersion.id}/natives").absolutePath
+            File(
+                launcherSettings.launcherDirectories.instancesDirectory,
+                "${launcherSettings.instanceSettings.instanceName}/natives"
+            ).absolutePath
         replacements["\${log_configuration}"] =
             File(
                 launcherSettings.launcherDirectories.assetsDirectory,
@@ -150,7 +156,7 @@ class MinecraftCommandBuilder(
         val targetDirectory = "-Dminecraft.applet.TargetDirectory=\${game_directory}"
         concatenator.appendString(targetDirectory)
 
-        if (!launcherSettings.instanceSettings.forgeMods) {
+        if (launcherSettings.instanceSettings.mods.isEmpty()) {
             val mainClass = "-Xms256m net.minecraft.client.main.Main"
             concatenator.appendString(mainClass)
         } else {

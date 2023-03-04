@@ -77,7 +77,7 @@ class MinecraftLauncher(
         nativeFiles.forEach {
             val dstFile = File(
                 launcherSettings.launcherDirectories.instancesDirectory,
-                "${launcherSettings.instanceSettings.minecraftVersion}/natives/${it.name}"
+                "${launcherSettings.instanceSettings.instanceName}/natives/${it.name}"
             )
             dstFile.parentFile.mkdirs()
             if (!dstFile.exists()) dstFile.createNewFile()

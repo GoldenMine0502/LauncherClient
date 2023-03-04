@@ -19,7 +19,7 @@ object Main {
 
         val mainFrame = MainFrame()
         val launcherDirectories = DefaultLauncherDirectories(File("inulauncher"))
-        val instanceSettings = InstanceSettings("1.16.5", "1.16", "36.2.34", 8, true)
+        val instanceSettings = InstanceSettings("1.16.5", "1.16", "36.2.34", 8, "inu1165", listOf())
         val launcherSettings = LauncherSettings(
             launcherDirectories,
             instanceSettings,
