@@ -127,7 +127,7 @@ class MinecraftLauncher(
 
         val replacements = minecraftForgeInstall.data
             .map {
-                Pair(it.key, it.value.client)
+                Pair("{${it.key}}", it.value.client)
             }
             .toMap()
             .toMutableMap()
@@ -139,11 +139,8 @@ class MinecraftLauncher(
         )
 
         // TODO 왜 맵에 넣는건 안될까
-        replacements["MINECRAFT_JAR"] = minecraftClientFile.absolutePath
+        replacements["{MINECRAFT_JAR}"] = minecraftClientFile.absolutePath
 
-        for ((key, value) in replacements) {
-            log.info("$key: $value")
-        }
 //        log.info("{MINECRAFT_JAR}: ${replacements["{MINECRAFT_JAR}"]}")
 
         // run processors
@@ -159,9 +156,14 @@ class MinecraftLauncher(
                 return additional.getLocalPath(launcherSettings.launcherDirectories.librariesDirectory).absolutePath
             }
 
-            fun applyReplacements(key: String): String {
+            fun applyReplacements(text: String): String {
 //                if(key == "{MINECRAFT_JAR}") return minecraftClientFile.absolutePath
-                return replacements[key.substring(1, key.length - 1)] ?: key
+                var text = text
+                for ((key, value) in replacements) {
+                    text = text.replace(key , value)
+                }
+
+                return text
             }
 
             fun replaceValue(value: String): String {

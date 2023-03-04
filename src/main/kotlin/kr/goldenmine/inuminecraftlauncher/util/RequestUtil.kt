@@ -1,20 +1,11 @@
-package kr.goldenmine.inuminecraftlauncher.download.java
+package kr.goldenmine.inuminecraftlauncher.util
 
 import okhttp3.ResponseBody
-import retrofit2.Retrofit
-import retrofit2.converter.gson.GsonConverterFactory
-import retrofit2.converter.scalars.ScalarsConverterFactory
 import java.io.*
 
-
-object JavaDownloaderRequest {
-    val SERVICE: JavaDownloaderService = Retrofit.Builder()
-        .baseUrl("http://minecraft.goldenmine.kr:20200/")
-        .addConverterFactory(GsonConverterFactory.create())
-        .addConverterFactory(ScalarsConverterFactory.create())
-        .build()
-        .create(JavaDownloaderService::class.java)
+class RequestUtil {
 }
+
 
 @Throws(IOException::class)
 fun writeResponseBodyToDisk(dst: File, body: ResponseBody, bufferSize: Int = 1024) {

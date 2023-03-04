@@ -8,8 +8,7 @@ import kr.goldenmine.inuminecraftlauncher.assets.MinecraftPackage
 import kr.goldenmine.inuminecraftlauncher.assets.MinecraftVersion
 import kr.goldenmine.inuminecraftlauncher.assets.MinecraftForgeInstall
 import kr.goldenmine.inuminecraftlauncher.assets.version.libraries.Library
-import kr.goldenmine.inuminecraftlauncher.download.*
-import kr.goldenmine.inuminecraftlauncher.download.java.writeResponseBodyToDisk
+import kr.goldenmine.inuminecraftlauncher.download.tasks.*
 import kr.goldenmine.inuminecraftlauncher.launcher.impl.MinecraftException
 import kr.goldenmine.inuminecraftlauncher.util.*
 import org.slf4j.Logger

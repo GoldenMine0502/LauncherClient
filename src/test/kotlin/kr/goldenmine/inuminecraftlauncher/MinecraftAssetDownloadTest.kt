@@ -2,7 +2,7 @@ package kr.goldenmine.inuminecraftlauncher
 
 import com.google.gson.Gson
 import kr.goldenmine.inuminecraftlauncher.assets.MinecraftForgeVersion
-import kr.goldenmine.inuminecraftlauncher.download.*
+import kr.goldenmine.inuminecraftlauncher.download.tasks.MinecraftForgeDownloadTask
 import kr.goldenmine.inuminecraftlauncher.launcher.DefaultLauncherDirectories
 import kr.goldenmine.inuminecraftlauncher.launcher.MinecraftCommandBuilder
 import kr.goldenmine.inuminecraftlauncher.launcher.MinecraftDownloader

@@ -97,12 +97,40 @@ public class MicrosoftAuthenticator {
     public MicrosoftUser loginNewUser() throws MicrosoftAuthException {
         final String tempCredentialId = UUID.randomUUID().toString();
 
+        System.out.println("=== get oauth credential ===");
         Credential credential = getOAuthCredential(tempCredentialId);
+        System.out.println(credential.getAccessToken());
+        System.out.println(credential.getRefreshToken());
+        System.out.println(credential.getTokenServerEncodedUrl());
+        System.out.println(credential.getRequestInitializer());
+        System.out.println(credential.getExpiresInSeconds());
 
+        System.out.println("=== authenticate xbox live ===");
         XboxResponse xboxResponse = authenticateXbox(credential);
+        System.out.println(xboxResponse.token);
+        System.out.println(xboxResponse.issueInstant);
+        System.out.println(xboxResponse.notAfter);
+        System.out.println(xboxResponse.displayClaims);
+
+        System.out.println("=== authenticate xsts ===");
         XboxResponse xstsResponse = authenticateXSTS(xboxResponse.token);
+        System.out.println(xstsResponse.token);
+        System.out.println(xstsResponse.issueInstant);
+        System.out.println(xstsResponse.notAfter);
+        System.out.println(xstsResponse.displayClaims);
+
+        System.out.println("=== authenticate minecraft xbox ===");
         XboxMinecraftResponse xboxMinecraftResponse = authenticateMinecraftXbox(xstsResponse);
+        System.out.println(xboxMinecraftResponse.accessToken);
+        System.out.println(xboxMinecraftResponse.expiresIn);
+        System.out.println(xboxMinecraftResponse.username);
+        System.out.println(xboxMinecraftResponse.tokenType);
+        System.out.println(xboxMinecraftResponse.roles);
+
+        System.out.println("=== get minecraft profile");
         MinecraftProfile profile = getMinecraftProfile(xboxMinecraftResponse);
+        System.out.println(profile.name);
+        System.out.println(profile.id);
 
         // TODO: what happens if the user changes their Minecraft username?
         updateCredentialStore(profile.name, credential);
@@ -149,7 +177,10 @@ public class MicrosoftAuthenticator {
 
         try {
             AuthorizationCodeFlow flow = buildFlow();
-            return new AuthorizationCodeInstalledApp(flow, receiver, DesktopUtils::browseUrl).authorize(username);
+            AuthorizationCodeInstalledApp app = new AuthorizationCodeInstalledApp(flow, receiver, DesktopUtils::browseUrl);
+            Credential authorize = app.authorize(username);
+            receiver.stop();
+            return authorize;
         } catch (IOException e) {
             Utils.getLogger().log(Level.SEVERE, "Failed to get OAuth authorization", e);
             throw new MicrosoftAuthException(OAUTH, "Failed to get OAuth authorization", e);
