@@ -1,4 +1,4 @@
-package kr.goldenmine.inuminecraftlauncher.download
+package kr.goldenmine.inuminecraftlauncher.download.tasks
 
 import kr.goldenmine.inuminecraftlauncher.assets.AssetService
 import kr.goldenmine.inuminecraftlauncher.assets.MinecraftVersionManifest

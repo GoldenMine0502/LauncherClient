@@ -1,5 +1,7 @@
 package kr.goldenmine.inuminecraftlauncher.download.java
 
+import kr.goldenmine.inuminecraftlauncher.download.ServerRequest
+import kr.goldenmine.inuminecraftlauncher.util.writeResponseBodyToDisk
 import net.technicpack.utilslib.OperatingSystem
 import lombok.extern.slf4j.Slf4j
 import org.slf4j.Logger
@@ -21,7 +23,7 @@ class IJavaDownloaderMac : IJavaDownloader {
         get() = OperatingSystem.OSX
 
     override fun download() {
-        val response = JavaDownloaderRequest.SERVICE.downloadJava(requestFileName).execute()
+        val response = ServerRequest.SERVICE.downloadJava("Mac", "").execute()
 
         if(response.isSuccessful) {
             val body = response.body()
@@ -49,7 +51,7 @@ class IJavaDownloaderMac : IJavaDownloader {
         }
 
         val defaultJava = File("usr/bin/java")
-        return javaList + defaultJava
+        return if(defaultJava.exists()) javaList + defaultJava else javaList
     }
 
     override fun getJavaVersionName(version: Int): String {

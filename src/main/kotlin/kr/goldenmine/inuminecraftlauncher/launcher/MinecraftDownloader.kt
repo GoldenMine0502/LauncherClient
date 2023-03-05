@@ -8,8 +8,7 @@ import kr.goldenmine.inuminecraftlauncher.assets.MinecraftPackage
 import kr.goldenmine.inuminecraftlauncher.assets.MinecraftVersion
 import kr.goldenmine.inuminecraftlauncher.assets.MinecraftForgeInstall
 import kr.goldenmine.inuminecraftlauncher.assets.version.libraries.Library
-import kr.goldenmine.inuminecraftlauncher.download.*
-import kr.goldenmine.inuminecraftlauncher.download.java.writeResponseBodyToDisk
+import kr.goldenmine.inuminecraftlauncher.download.tasks.*
 import kr.goldenmine.inuminecraftlauncher.launcher.impl.MinecraftException
 import kr.goldenmine.inuminecraftlauncher.util.*
 import org.slf4j.Logger
@@ -170,7 +169,7 @@ class MinecraftDownloader(
         // get version.json and download all libraries
         val minecraftForgeVersionFile = File(
             launcherSettings.launcherDirectories.forgeDirectory,
-            "${launcherSettings.instanceSettings.forgeInstallerFileFolder}/version.json"
+            "${launcherSettings.instanceSettings.getForgeInstallerFileFolder()}/version.json"
         )
         val minecraftForgeVersion =
             gson.fromJson(minecraftForgeVersionFile.readText(), MinecraftForgeVersion::class.java)
@@ -217,7 +216,7 @@ class MinecraftDownloader(
     fun downloadForgeInstallProfile() {
         val minecraftForgeInstallFile = File(
             launcherSettings.launcherDirectories.forgeDirectory,
-            "${launcherSettings.instanceSettings.forgeInstallerFileFolder}/install_profile.json"
+            "${launcherSettings.instanceSettings.getForgeInstallerFileFolder()}/install_profile.json"
         )
         val minecraftForgeInstall =
             gson.fromJson(minecraftForgeInstallFile.readText(), MinecraftForgeInstall::class.java)
@@ -230,12 +229,12 @@ class MinecraftDownloader(
             ?: throw MinecraftException("no java found. stopping downloading forge")
 
         val forgeFile =
-            File(launcherSettings.launcherDirectories.forgeDirectory, launcherSettings.instanceSettings.forgeFileName)
+            File(launcherSettings.launcherDirectories.forgeDirectory, launcherSettings.instanceSettings.getForgeFileName())
         downloadForgeInstaller(forgeFile)
 
         val forgeInstallerFile = File(
             launcherSettings.launcherDirectories.forgeDirectory,
-            launcherSettings.instanceSettings.forgeInstallerFileName
+            launcherSettings.instanceSettings.getForgeInstallerFileName()
         )
 
         extractForge(forgeInstallerFile, javaPath)
@@ -247,7 +246,7 @@ class MinecraftDownloader(
 
         val dstFolder = File(
             launcherSettings.launcherDirectories.forgeDirectory,
-            launcherSettings.instanceSettings.forgeInstallerFileFolder
+            launcherSettings.instanceSettings.getForgeInstallerFileFolder()
         )
 
         unzipJar(forgeInstallerFile, dstFolder)

@@ -4,6 +4,7 @@ import com.google.common.reflect.TypeToken
 import com.google.gson.Gson
 import kr.goldenmine.inuminecraftlauncher.LauncherSettings
 import kr.goldenmine.inuminecraftlauncher.launcher.MinecraftCommandBuilder
+import kr.goldenmine.inuminecraftlauncher.launcher.MinecraftDataDownloader
 import kr.goldenmine.inuminecraftlauncher.launcher.MinecraftDownloader
 import kr.goldenmine.inuminecraftlauncher.launcher.MinecraftLauncher
 import kr.goldenmine.inuminecraftlauncher.launcher.models.MinecraftAccount
@@ -84,6 +85,7 @@ class MainFrameController(
                 )
 
                 val downloader = MinecraftDownloader(launcherSettings)
+                val dataDownloader = MinecraftDataDownloader(launcherSettings)
 
                 val builder = MinecraftCommandBuilder(launcherSettings, minecraftAccount)
 
@@ -94,6 +96,7 @@ class MainFrameController(
 
                 addLog("checking or downloading minecraft assets...")
                 downloader.download()
+                dataDownloader.download()
 //                addLog("copying libraries...")
 //                launcher.preProcess()
                 addLog("launching minecraft...")

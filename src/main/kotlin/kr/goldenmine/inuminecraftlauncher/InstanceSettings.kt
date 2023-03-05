@@ -5,9 +5,13 @@ class InstanceSettings(
     val assetVersion: String,
     val forgeVersion: String,
     val javaVersion: Int,
-    val forgeMods: Boolean
+    val javaVersionSpecific: Map<String, String>,
+    val instanceName: String,
+    val ip: String,
+    val port: Int,
+    val mods: List<String>,
 ) {
-    val forgeInstallerFileName = "forge-$minecraftVersion-$forgeVersion-installer.jar"
-    val forgeInstallerFileFolder = "forge-$minecraftVersion-$forgeVersion-installer"
-    val forgeFileName = "forge-$minecraftVersion-$forgeVersion.jar"
+    fun getForgeInstallerFileName() = "forge-$minecraftVersion-$forgeVersion-installer.jar"
+    fun getForgeInstallerFileFolder() = "forge-$minecraftVersion-$forgeVersion-installer"
+    fun getForgeFileName() = "forge-$minecraftVersion-$forgeVersion.jar"
 }

@@ -1,4 +1,4 @@
-package kr.goldenmine.inuminecraftlauncher.download
+package kr.goldenmine.inuminecraftlauncher.download.tasks
 
 import com.google.gson.GsonBuilder
 import kr.goldenmine.inuminecraftlauncher.assets.AssetService

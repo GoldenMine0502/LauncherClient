@@ -10,7 +10,7 @@ plugins {
 }
 
 group = "kr.goldenmine.inuminecraftlauncher.client"
-version = "1.0-SNAPSHOT"
+version = "1.0.0-SNAPSHOT"
 
 repositories {
     mavenCentral()
@@ -111,7 +111,7 @@ tasks.withType<KotlinCompile> {
 }
 
 application {
-    mainClass.set("MainKt")
+    mainClass.set("kr.goldenmine.inuminecraftlauncher.Main")
 }
 
 //compileJava.options.fork = true

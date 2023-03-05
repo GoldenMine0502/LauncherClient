@@ -17,9 +17,7 @@ class INUTextField(val hint: String) : JTextField(), FocusListener {
         background = Color.WHITE
         foreground = Color.GRAY.brighter()
         columns = 30
-        border = BorderFactory.createCompoundBorder(
-
-        )
+        border = BorderFactory.createCompoundBorder()
 
         addFocusListener(this)
     }

@@ -1,8 +1,8 @@
-package kr.goldenmine.inuminecraftlauncher.download
+package kr.goldenmine.inuminecraftlauncher.download.tasks
 
 import kr.goldenmine.inuminecraftlauncher.assets.AssetService
-import kr.goldenmine.inuminecraftlauncher.download.java.writeResponseBodyToDisk
 import kr.goldenmine.inuminecraftlauncher.launcher.LauncherDirectories
+import kr.goldenmine.inuminecraftlauncher.util.writeResponseBodyToDisk
 import java.io.File
 
 class MinecraftForgeDownloadTask(
