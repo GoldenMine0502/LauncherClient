@@ -53,7 +53,8 @@ public class MicrosoftAuthenticator {
     private static final String MINECRAFT_PROFILE_URL = "https://api.minecraftservices.com/minecraft/profile";
 
     static {
-        try (BufferedReader is = new BufferedReader(new InputStreamReader(Objects.requireNonNull(ClassLoader.getSystemClassLoader().getResourceAsStream("client.json"))))) {
+        File mainFile = new File("inulauncher/client.json");
+        try (BufferedReader is = new BufferedReader(new FileReader(mainFile))) {
 //            val readerClientJson =
 //                    BufferedReader(InputStreamReader(Objects.requireNonNull(javaClass.classLoader.getResourceAsStream("client.json"))))
             Type type = new TypeToken<ClientInfo>() {}.getType();
