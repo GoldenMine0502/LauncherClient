@@ -11,9 +11,7 @@ import kr.goldenmine.inuminecraftlauncher.launcher.models.MinecraftAccount
 import kr.goldenmine.inuminecraftlauncher.util.MoveToTheBottom
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
-import java.io.BufferedReader
-import java.io.IOException
-import java.io.InputStreamReader
+import java.io.*
 import java.util.*
 import java.util.concurrent.ExecutionException
 
@@ -35,8 +33,9 @@ class MainFrameController(
     }
 
     private fun loadClientInfo() {
+        val file = File(launcherSettings.launcherDirectories.launcherDirectory, "client.json")
         val readerClientJson =
-            BufferedReader(InputStreamReader(Objects.requireNonNull(javaClass.classLoader.getResourceAsStream("client.json"))))
+            BufferedReader(FileReader(file))
         val type = object : TypeToken<ClientInfo?>() {}.type
         clientInfo = gson.fromJson(readerClientJson, type)
     }
