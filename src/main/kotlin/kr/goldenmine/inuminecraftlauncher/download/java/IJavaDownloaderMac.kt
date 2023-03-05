@@ -51,7 +51,7 @@ class IJavaDownloaderMac : IJavaDownloader {
         }
 
         val defaultJava = File("usr/bin/java")
-        return javaList + defaultJava
+        return if(defaultJava.exists()) javaList + defaultJava else javaList
     }
 
     override fun getJavaVersionName(version: Int): String {
