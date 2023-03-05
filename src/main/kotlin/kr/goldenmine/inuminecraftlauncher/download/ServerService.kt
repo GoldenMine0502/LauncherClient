@@ -8,9 +8,9 @@ import retrofit2.http.Path
 import retrofit2.http.Query
 
 interface ServerService {
-    @GET("file/download/java/{os}/")
+    @GET("file/download/java/{fileName}")
     fun downloadJava(
-        @Path("os") os: String
+        @Path("fileName") fileName: String
     ): Call<ResponseBody>
 
     @GET("file/download/versions")
@@ -20,7 +20,7 @@ interface ServerService {
     fun getInstanceSetting(@Query("version") version: String): Call<InstanceSettings>
 
     @GET("file/download/mods/{modName}")
-    fun getMod(@Path("modName") modName: String)
+    fun downloadMod(@Path("modName") modName: String): Call<ResponseBody>
 //    @GET("file/check/{fileName}")
 //    fun checkFile(@Path("fileName") fileName: String): Call<String>
 }

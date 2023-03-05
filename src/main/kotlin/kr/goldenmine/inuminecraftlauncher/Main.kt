@@ -4,6 +4,8 @@ import io.github.bonigarcia.wdm.WebDriverManager
 import kr.goldenmine.inuminecraftlauncher.launcher.DefaultLauncherDirectories
 import kr.goldenmine.inuminecraftlauncher.ui.MainFrame
 import kr.goldenmine.inuminecraftlauncher.ui.MainFrameController
+import kr.goldenmine.inuminecraftlauncher.util.OS_NAME_MAC
+import kr.goldenmine.inuminecraftlauncher.util.OS_NAME_WINDOWS
 import java.io.File
 
 // 마인크래프트 런쳐를 위한 api
@@ -41,8 +43,8 @@ worldedit-mod-7.2.5-dist.jar
             "36.2.34",
             8,
             mapOf(
-                Pair("Mac", "jdk1.8.0_351.jdk"),
-                Pair("Windows", "jdk8u351")
+                Pair(OS_NAME_MAC, "jdk1.8.0_351.jdk"),
+                Pair(OS_NAME_WINDOWS, "jdk8u351")
             ),
             "inu1165",
             listOf(

@@ -1,6 +1,8 @@
 package kr.goldenmine.inuminecraftlauncher
 
 import com.google.gson.GsonBuilder
+import kr.goldenmine.inuminecraftlauncher.util.OS_NAME_MAC
+import kr.goldenmine.inuminecraftlauncher.util.OS_NAME_WINDOWS
 import java.io.File
 
 fun main() {
@@ -10,8 +12,8 @@ fun main() {
         "36.2.34",
         8,
         mapOf(
-            Pair("Mac", "jdk1.8.0_351.jdk"),
-            Pair("Windows", "jdk8u351")
+            Pair(OS_NAME_MAC, "jdk1.8.0_351.jdk"),
+            Pair(OS_NAME_WINDOWS, "jdk8u351")
         ),
         "inu1165",
         listOf(
