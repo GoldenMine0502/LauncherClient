@@ -110,7 +110,7 @@ class MinecraftLauncher(
     fun installForge() {
         val minecraftForgeInstallFile = File(
             launcherSettings.launcherDirectories.forgeDirectory,
-            "${launcherSettings.instanceSettings.forgeInstallerFileFolder}/install_profile.json"
+            "${launcherSettings.instanceSettings.getForgeInstallerFileFolder()}/install_profile.json"
         )
         val minecraftForgeInstall =
             gson.fromJson(minecraftForgeInstallFile.readText(), MinecraftForgeInstall::class.java)
@@ -270,7 +270,7 @@ class MinecraftLauncher(
                 else if (arg.contains("BINPATCH"))
                     File(
                         launcherSettings.launcherDirectories.forgeDirectory,
-                        "${launcherSettings.instanceSettings.forgeInstallerFileFolder}/data/client.lzma"
+                        "${launcherSettings.instanceSettings.getForgeInstallerFileFolder()}/data/client.lzma"
                     ).absolutePath
                 else
                     replaceValue(arg)

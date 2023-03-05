@@ -169,7 +169,7 @@ class MinecraftDownloader(
         // get version.json and download all libraries
         val minecraftForgeVersionFile = File(
             launcherSettings.launcherDirectories.forgeDirectory,
-            "${launcherSettings.instanceSettings.forgeInstallerFileFolder}/version.json"
+            "${launcherSettings.instanceSettings.getForgeInstallerFileFolder()}/version.json"
         )
         val minecraftForgeVersion =
             gson.fromJson(minecraftForgeVersionFile.readText(), MinecraftForgeVersion::class.java)
@@ -216,7 +216,7 @@ class MinecraftDownloader(
     fun downloadForgeInstallProfile() {
         val minecraftForgeInstallFile = File(
             launcherSettings.launcherDirectories.forgeDirectory,
-            "${launcherSettings.instanceSettings.forgeInstallerFileFolder}/install_profile.json"
+            "${launcherSettings.instanceSettings.getForgeInstallerFileFolder()}/install_profile.json"
         )
         val minecraftForgeInstall =
             gson.fromJson(minecraftForgeInstallFile.readText(), MinecraftForgeInstall::class.java)
@@ -229,12 +229,12 @@ class MinecraftDownloader(
             ?: throw MinecraftException("no java found. stopping downloading forge")
 
         val forgeFile =
-            File(launcherSettings.launcherDirectories.forgeDirectory, launcherSettings.instanceSettings.forgeFileName)
+            File(launcherSettings.launcherDirectories.forgeDirectory, launcherSettings.instanceSettings.getForgeFileName())
         downloadForgeInstaller(forgeFile)
 
         val forgeInstallerFile = File(
             launcherSettings.launcherDirectories.forgeDirectory,
-            launcherSettings.instanceSettings.forgeInstallerFileName
+            launcherSettings.instanceSettings.getForgeInstallerFileName()
         )
 
         extractForge(forgeInstallerFile, javaPath)
@@ -246,7 +246,7 @@ class MinecraftDownloader(
 
         val dstFolder = File(
             launcherSettings.launcherDirectories.forgeDirectory,
-            launcherSettings.instanceSettings.forgeInstallerFileFolder
+            launcherSettings.instanceSettings.getForgeInstallerFileFolder()
         )
 
         unzipJar(forgeInstallerFile, dstFolder)

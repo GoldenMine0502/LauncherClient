@@ -17,8 +17,8 @@ interface ServerService {
     @GET("file/download/versions")
     fun getInstanceSettings(): Call<List<String>>
 
-    @GET("file/download/version")
-    fun getInstanceSetting(@Query("version") version: String): Call<InstanceSettings>
+    @GET("file/download/version/{version}")
+    fun getInstanceSetting(@Path("version") version: String): Call<InstanceSettings>
 
     @GET("file/download/mods/{modName}")
     fun downloadMod(@Path("modName") modName: String): Call<ResponseBody>

@@ -111,7 +111,7 @@ class MinecraftCommandBuilder(
 
         val minecraftForgeVersionFile = File(
             launcherSettings.launcherDirectories.forgeDirectory,
-            "${launcherSettings.instanceSettings.forgeInstallerFileName.substringBeforeLast('.')}/version.json"
+            "${launcherSettings.instanceSettings.getForgeInstallerFileName().substringBeforeLast('.')}/version.json"
         )
         val minecraftForgeVersion =
             gson.fromJson(minecraftForgeVersionFile.readText(), MinecraftForgeVersion::class.java)
@@ -282,7 +282,7 @@ class MinecraftCommandBuilder(
 
             val forgeClientFile = File(
                 launcherSettings.launcherDirectories.forgeDirectory,
-                launcherSettings.instanceSettings.forgeFileName
+                launcherSettings.instanceSettings.getForgeFileName()
             ).absolutePath
             builder.append(forgeClientFile)
         }

@@ -11,7 +11,7 @@ class InstanceSettings(
     val port: Int,
     val mods: List<String>,
 ) {
-    @Transient val forgeInstallerFileName = "forge-$minecraftVersion-$forgeVersion-installer.jar"
-    @Transient val forgeInstallerFileFolder = "forge-$minecraftVersion-$forgeVersion-installer"
-    @Transient val forgeFileName = "forge-$minecraftVersion-$forgeVersion.jar"
+    fun getForgeInstallerFileName() = "forge-$minecraftVersion-$forgeVersion-installer.jar"
+    fun getForgeInstallerFileFolder() = "forge-$minecraftVersion-$forgeVersion-installer"
+    fun getForgeFileName() = "forge-$minecraftVersion-$forgeVersion.jar"
 }
