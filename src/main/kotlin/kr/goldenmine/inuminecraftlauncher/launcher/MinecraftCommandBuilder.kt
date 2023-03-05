@@ -172,6 +172,12 @@ class MinecraftCommandBuilder(
             concatenator.processLine(line)
         }
 
+        val serverIp = "--server ${launcherSettings.instanceSettings.ip}"
+        val serverPort = "--port ${launcherSettings.instanceSettings.port}"
+
+        concatenator.appendString(serverIp)
+        concatenator.appendString(serverPort)
+
 //        val clientId = "--clientId=\${clientId}"
 //        appendString(clientId)
 //
