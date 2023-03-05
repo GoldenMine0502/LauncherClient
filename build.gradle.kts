@@ -111,7 +111,7 @@ tasks.withType<KotlinCompile> {
 }
 
 application {
-    mainClass.set("MainKt")
+    mainClass.set("kr.goldenmine.inuminecraftlauncher.MainKt")
 }
 
 //compileJava.options.fork = true

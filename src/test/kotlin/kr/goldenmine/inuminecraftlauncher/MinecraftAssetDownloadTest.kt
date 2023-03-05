@@ -65,7 +65,7 @@ class MinecraftAssetDownloadTest {
 
     @Test
     fun printTest() {
-        println(instanceSettings.forgeInstallerFileName.substringBeforeLast('.'))
+        println(instanceSettings.getForgeInstallerFileName().substringBeforeLast('.'))
     }
 
     @Test
@@ -84,10 +84,10 @@ class MinecraftAssetDownloadTest {
     fun forgeLoadTest() {
         val gson = Gson()
 
-        val forgeInstallerFile = File(temporaryDirectory.forgeDirectory, instanceSettings.forgeInstallerFileName)
+        val forgeInstallerFile = File(temporaryDirectory.forgeDirectory, instanceSettings.getForgeInstallerFileName())
         if (!forgeInstallerFile.exists()) println("no forge file")
 
-        val fileNameNoExtension = instanceSettings.forgeInstallerFileName.substringBeforeLast('.')
+        val fileNameNoExtension = instanceSettings.getForgeInstallerFileName().substringBeforeLast('.')
 
         val dstFolder = File(temporaryDirectory.forgeDirectory, fileNameNoExtension)
 
@@ -113,7 +113,7 @@ class MinecraftAssetDownloadTest {
 
     @Test
     fun forgeExtractTest() {
-        val forgeInstallerFile = File(temporaryDirectory.forgeDirectory, instanceSettings.forgeInstallerFileName)
+        val forgeInstallerFile = File(temporaryDirectory.forgeDirectory, instanceSettings.getForgeInstallerFileName())
         val javaPath = launcherSettings.javaRepository.primary?.absolutePath
 
         if (forgeInstallerFile.exists() && javaPath != null) {
@@ -140,7 +140,7 @@ class MinecraftAssetDownloadTest {
             }.start()
             process.waitFor()
 
-            val forgeFile = File(temporaryDirectory.forgeDirectory, instanceSettings.forgeFileName)
+            val forgeFile = File(temporaryDirectory.forgeDirectory, instanceSettings.getForgeFileName())
             println("forgeFile: ${forgeFile.absolutePath} ${forgeFile.exists()}")
         } else {
             println("exists ${forgeInstallerFile.exists()}")
