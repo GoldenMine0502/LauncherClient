@@ -71,6 +71,16 @@ class MinecraftDataDownloader(
                 log.info("mod $modName already exists.")
             }
         }
+
+        // delete old version
+        modsFolder.listFiles()?.forEach { file->
+            val find = launcherSettings.instanceSettings.mods.any { file.name.contains(it) }
+
+            if(!find) {
+                log.info("deleting old version ${file.name}")
+                file.delete()
+            }
+        }
     }
 
     fun download() {
