@@ -7,6 +7,8 @@ class InstanceSettings(
     val javaVersion: Int,
     val javaVersionSpecific: Map<String, String>,
     val instanceName: String,
+    val ip: String,
+    val port: Int,
     val mods: List<String>,
 ) {
     @Transient val forgeInstallerFileName = "forge-$minecraftVersion-$forgeVersion-installer.jar"

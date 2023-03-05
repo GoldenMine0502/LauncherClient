@@ -8,6 +8,8 @@ import kr.goldenmine.inuminecraftlauncher.launcher.MinecraftCommandBuilder
 import kr.goldenmine.inuminecraftlauncher.launcher.MinecraftDownloader
 import kr.goldenmine.inuminecraftlauncher.launcher.MinecraftLauncher
 import kr.goldenmine.inuminecraftlauncher.launcher.models.MinecraftAccount
+import kr.goldenmine.inuminecraftlauncher.util.OS_NAME_MAC
+import kr.goldenmine.inuminecraftlauncher.util.OS_NAME_WINDOWS
 import kr.goldenmine.inuminecraftlauncher.util.unzipJar
 import org.junit.jupiter.api.Test
 import java.io.BufferedReader
@@ -17,9 +19,23 @@ import java.io.InputStreamReader
 class MinecraftAssetDownloadTest {
 
     private val temporaryDirectory = DefaultLauncherDirectories(File("inulauncher"))
-    private val instanceSettings = InstanceSettings("1.16.5", "1.16", "36.2.34", 8, "inu1165", listOf())
+    private val instanceSettings = InstanceSettings(
+        "1.16.5",
+        "1.16",
+        "36.2.34",
+        8,
+        mapOf(
+            Pair(OS_NAME_MAC, "jdk1.8.0_351.jdk"),
+            Pair(OS_NAME_WINDOWS, "jdk8u351")
+        ),
+        "inu1165",
+        "minecraft.goldenmine.kr",
+        20000,
+        listOf()
+    )
     private val minecraftAccount = MinecraftAccount("test", "test", "test", "test")
-    private val launcherSettings = LauncherSettings(temporaryDirectory,
+    private val launcherSettings = LauncherSettings(
+        temporaryDirectory,
         instanceSettings,
         width = 854,
         height = 480,
@@ -54,7 +70,11 @@ class MinecraftAssetDownloadTest {
 
     @Test
     fun forgeDownloadTest() {
-        val forgeDownloadTask = MinecraftForgeDownloadTask(temporaryDirectory, instanceSettings.minecraftVersion, instanceSettings.forgeVersion)
+        val forgeDownloadTask = MinecraftForgeDownloadTask(
+            temporaryDirectory,
+            instanceSettings.minecraftVersion,
+            instanceSettings.forgeVersion
+        )
         val result = forgeDownloadTask.download()
 
         println("downloaded: $result")
@@ -65,7 +85,7 @@ class MinecraftAssetDownloadTest {
         val gson = Gson()
 
         val forgeInstallerFile = File(temporaryDirectory.forgeDirectory, instanceSettings.forgeInstallerFileName)
-        if(!forgeInstallerFile.exists()) println("no forge file")
+        if (!forgeInstallerFile.exists()) println("no forge file")
 
         val fileNameNoExtension = instanceSettings.forgeInstallerFileName.substringBeforeLast('.')
 

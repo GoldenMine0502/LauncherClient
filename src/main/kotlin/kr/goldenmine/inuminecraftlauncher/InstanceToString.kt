@@ -16,6 +16,8 @@ fun main() {
             Pair(OS_NAME_WINDOWS, "jdk8u351")
         ),
         "inu1165",
+        "minecraft.goldenmine.kr",
+        20000,
         listOf(
             "chiselsandbits-1.0.43.jar",
             "immersive-portals-0.17-mc1.16.5-forge.jar",
