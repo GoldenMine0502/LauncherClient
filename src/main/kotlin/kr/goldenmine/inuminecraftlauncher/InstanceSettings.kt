@@ -5,6 +5,7 @@ class InstanceSettings(
     val assetVersion: String,
     val forgeVersion: String,
     val javaVersion: Int,
+    val javaVersionSpecific: Map<String, String>,
     val instanceName: String,
     val mods: List<String>,
 ) {
