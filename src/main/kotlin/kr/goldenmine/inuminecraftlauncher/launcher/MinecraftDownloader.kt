@@ -31,7 +31,7 @@ class MinecraftDownloader(
         }/${minecraftVersion.logging.client.file.id}"
         val xmlFile = File(launcherSettings.launcherDirectories.assetsDirectory, xmlFileRoute)
         if (!xmlFile.exists() || getFileSHA1(xmlFile) != minecraftVersion.logging.client.file.sha1) {
-            println("downloading xml")
+            log.info("downloading xml")
             val xmlBody =
                 AssetService.MINECRAFT_API.downloadFromUrl(minecraftVersion.logging.client.file.url).execute()
                     .body()
@@ -40,7 +40,7 @@ class MinecraftDownloader(
                 writeResponseBodyToDisk(xmlFile, xmlBody)
             }
         } else {
-            println("xml exists")
+            log.info("xml exists")
         }
     }
 
@@ -49,7 +49,7 @@ class MinecraftDownloader(
         val mappingFileRoute = "versions/${launcherSettings.instanceSettings.minecraftVersion}.txt"
         val mappingFile = File(launcherSettings.launcherDirectories.librariesDirectory, mappingFileRoute)
         if (!mappingFile.exists() || getFileSHA1(mappingFile) != minecraftVersion.downloads.clientMappings.sha1) {
-            println("downloading mapping")
+            log.info("downloading mapping")
             val mappingBody =
                 AssetService.MINECRAFT_API.downloadFromUrl(minecraftVersion.downloads.clientMappings.url)
                     .execute().body()
@@ -60,7 +60,7 @@ class MinecraftDownloader(
                 writeResponseBodyToDisk(mappingFile, mappingBody)
             }
         } else {
-            println("mapping exists")
+            log.info("mapping exists")
         }
     }
 
@@ -72,7 +72,7 @@ class MinecraftDownloader(
         )
 
         if (!clientFile.exists() || getFileSHA1(clientFile) != minecraftVersion.downloads.client.sha1) {
-            println("downloading client")
+            log.info("downloading client")
 
             val clientBody =
                 AssetService.MINECRAFT_API.downloadFromUrl(minecraftVersion.downloads.client.url).execute()
@@ -84,20 +84,20 @@ class MinecraftDownloader(
                 writeResponseBodyToDisk(clientFile, clientBody)
             }
         } else {
-            println("client exists")
+            log.info("client exists")
         }
     }
 
     fun downloadVanillaAssets(minecraftPackage: MinecraftPackage) {
         // downloading objects
         minecraftPackage.objects.forEach {
-            println("downloading ${it.key}")
+            log.info("downloading ${it.key}")
 
             val assetDownloadTask =
                 MinecraftAssetDownloadTask(launcherSettings.launcherDirectories, it.key, it.value)
 
             while (!assetDownloadTask.download()) {
-                println("retrying ${it.key}")
+                log.info("retrying ${it.key}")
             }
         }
     }
@@ -142,9 +142,9 @@ class MinecraftDownloader(
             )
             val result = forgeDownloadTask.download()
 
-            println("downloaded: $result")
+            log.info("downloaded: $result")
         } else {
-            println("forge already exists")
+            log.info("forge already exists")
         }
     }
 
@@ -160,8 +160,8 @@ class MinecraftDownloader(
                 )
             )
         } else {
-            println("exists ${forgeInstallerFile.exists()}")
-            println("javaPath $javaPath")
+            log.info("exists ${forgeInstallerFile.exists()}")
+            log.info("javaPath $javaPath")
         }
     }
 

@@ -6,11 +6,16 @@ import kr.goldenmine.inuminecraftlauncher.download.ServerRequest
 import kr.goldenmine.inuminecraftlauncher.launcher.DefaultLauncherDirectories
 import kr.goldenmine.inuminecraftlauncher.ui.MainFrame
 import kr.goldenmine.inuminecraftlauncher.ui.MainFrameController
+import org.slf4j.Logger
+import org.slf4j.LoggerFactory
 import java.io.File
 
 // 마인크래프트 런쳐를 위한 api
 // https://github.com/tomsik68/mclauncher-api
 object Main {
+
+    private val log: Logger = LoggerFactory.getLogger(Main::class.java)
+
     @JvmStatic
     fun main(args: Array<String>) {
 
@@ -42,7 +47,7 @@ worldedit-mod-7.2.5-dist.jar
         val instanceSettings = ServerRequest.SERVICE.getInstanceSetting(version).execute().body()
 
         if(instanceSettings != null) {
-            println(GsonBuilder().setPrettyPrinting().create().toJson(instanceSettings))
+            log.info(GsonBuilder().setPrettyPrinting().create().toJson(instanceSettings))
             val mainFrame = MainFrame()
             val launcherDirectories = DefaultLauncherDirectories(mainFolder)
 

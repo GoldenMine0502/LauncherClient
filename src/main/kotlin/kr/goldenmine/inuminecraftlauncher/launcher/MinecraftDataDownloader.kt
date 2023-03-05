@@ -41,7 +41,7 @@ class MinecraftDataDownloader(
                 log.info("java already exists. $javaFileName")
             }
         } catch(ex: Exception) {
-            ex.printStackTrace()
+            log.error(ex.message, ex)
             log.info("using local java")
         }
     }

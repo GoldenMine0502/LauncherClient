@@ -5,6 +5,8 @@ import kr.goldenmine.inuminecraftlauncher.assets.assets.MinecraftAsset
 import kr.goldenmine.inuminecraftlauncher.launcher.LauncherDirectories
 import kr.goldenmine.inuminecraftlauncher.util.getFileSHA1
 import kr.goldenmine.inuminecraftlauncher.util.writeResponseBodyToDisk
+import org.slf4j.Logger
+import org.slf4j.LoggerFactory
 import java.io.File
 
 class MinecraftAssetDownloadTask(
@@ -13,13 +15,15 @@ class MinecraftAssetDownloadTask(
     private val asset: MinecraftAsset
 ) : ITask<Boolean> {
 
+    private val log: Logger = LoggerFactory.getLogger(MinecraftAssetDownloadTask::class.java)
+
     // if a download is success or already exist, return true
     override fun download(): Boolean {
         val file = File(launcherDirectories.assetsDirectory, "objects/${asset.hash.substring(0, 2)}/${asset.hash}")
         file.parentFile.mkdirs()
 
         if (checkHash(file)) {
-            println("already the asset exists: $fileName")
+            log.info("already the asset exists: $fileName")
             return true
         }
 

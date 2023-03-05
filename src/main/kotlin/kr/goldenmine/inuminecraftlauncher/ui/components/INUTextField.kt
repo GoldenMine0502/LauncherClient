@@ -10,7 +10,7 @@ import javax.swing.BorderFactory
 import javax.swing.JTextField
 
 
-class INUTextField(val hint: String) : JTextField(), FocusListener {
+class INUTextField(private val hint: String) : JTextField(), FocusListener {
     private var showingHint = true
 
     init {

@@ -9,9 +9,8 @@ import java.io.File
 
 class UserAdministrator(launcherDirectories: LauncherDirectories) {
     val microsoftAuthenticator = MicrosoftAuthenticator(File(launcherDirectories.launcherDirectory, "oauth"))
-    val users = TechnicUserStore.load(File(launcherDirectories.launcherDirectory, "users.json"))
-    val userModel = UserModel(users, microsoftAuthenticator)
-
+    val users: TechnicUserStore = TechnicUserStore.load(File(launcherDirectories.launcherDirectory, "users.json"))
+    private val userModel = UserModel(users, microsoftAuthenticator)
 
     fun login(): MicrosoftUser {
         return if(users.users.isEmpty()) {
