@@ -23,7 +23,7 @@ class IJavaDownloaderMac : IJavaDownloader {
         get() = OperatingSystem.OSX
 
     override fun download() {
-        val response = ServerRequest.SERVICE.downloadJava("Mac").execute()
+        val response = ServerRequest.SERVICE.downloadJava("Mac", "").execute()
 
         if(response.isSuccessful) {
             val body = response.body()

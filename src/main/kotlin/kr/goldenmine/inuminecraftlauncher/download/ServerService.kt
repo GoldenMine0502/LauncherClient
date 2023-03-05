@@ -8,8 +8,9 @@ import retrofit2.http.Path
 import retrofit2.http.Query
 
 interface ServerService {
-    @GET("file/download/java/{fileName}")
+    @GET("file/download/java/{os}/{fileName}")
     fun downloadJava(
+        @Path("os") os: String,
         @Path("fileName") fileName: String
     ): Call<ResponseBody>
 

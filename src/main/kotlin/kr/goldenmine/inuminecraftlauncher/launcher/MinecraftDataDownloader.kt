@@ -15,29 +15,34 @@ class MinecraftDataDownloader(
     private val log: Logger = LoggerFactory.getLogger(MinecraftDataDownloader::class.java)
 
     fun downloadJava() {
-        log.info("downloading java...")
+        try {
+            log.info("downloading java...")
 
-        val javaFileName = launcherSettings.instanceSettings.javaVersionSpecific[OS_NAME]
-            ?: throw RuntimeException("not supported OS")
-        val javaFileNameWithExtension = "$javaFileName.zip"
-        val javaRoute = File(launcherSettings.launcherDirectories.javaDirectory, "$OS_NAME/$javaFileName")
-        val javaRouteWithExtension =
-            File(launcherSettings.launcherDirectories.javaDirectory, "$OS_NAME/$javaFileNameWithExtension")
+            val javaFileName = launcherSettings.instanceSettings.javaVersionSpecific[OS_NAME]
+                ?: throw RuntimeException("not supported OS")
+            val javaFileNameWithExtension = "$javaFileName.zip"
+            val javaRoute = File(launcherSettings.launcherDirectories.javaDirectory, "$OS_NAME/$javaFileName")
+            val javaRouteWithExtension =
+                File(launcherSettings.launcherDirectories.javaDirectory, "$OS_NAME/$javaFileNameWithExtension")
 
-        // 존재하지 않을 때만 다운로드
-        if (!javaRouteWithExtension.exists()) {
-            val response = ServerRequest.SERVICE.downloadJava(javaFileNameWithExtension).execute()
-            if (!response.isSuccessful) throw RuntimeException("failed to download java. response is not successful.")
+            // 존재하지 않을 때만 다운로드
+            if (!javaRouteWithExtension.exists()) {
+                val response = ServerRequest.SERVICE.downloadJava(OS_NAME, javaFileNameWithExtension).execute()
+                if (!response.isSuccessful) throw RuntimeException("failed to download java. response is not successful.")
 
-            val body = response.body() ?: throw RuntimeException("failed to download java. no body.")
+                val body = response.body() ?: throw RuntimeException("failed to download java. no body.")
 
-            log.info("saving java to $javaRoute")
-            writeResponseBodyToDisk(javaRouteWithExtension, body)
+                log.info("saving java to $javaRoute")
+                writeResponseBodyToDisk(javaRouteWithExtension, body)
 
-            log.info("unzipping java...")
-            Compress().unZip(javaRouteWithExtension.absolutePath, javaRoute.absolutePath)
-        } else {
-            log.info("java already exists. $javaFileName")
+                log.info("unzipping java...")
+                Compress().unZip(javaRouteWithExtension.absolutePath, javaRoute.absolutePath)
+            } else {
+                log.info("java already exists. $javaFileName")
+            }
+        } catch(ex: Exception) {
+            ex.printStackTrace()
+            log.info("using local java")
         }
     }
 
@@ -61,6 +66,7 @@ class MinecraftDataDownloader(
                 val body = response.body() ?: throw RuntimeException("failed to download mod $modName. no body.")
 
                 writeResponseBodyToDisk(modFile, body)
+                log.info("downloaded mod $modName")
             } else {
                 log.info("mod $modName already exists.")
             }

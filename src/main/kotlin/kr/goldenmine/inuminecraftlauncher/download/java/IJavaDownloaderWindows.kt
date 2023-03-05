@@ -23,7 +23,7 @@ class IJavaDownloaderWindows : IJavaDownloader {
         get() = OperatingSystem.OSX
 
     override fun download() {
-        val response = ServerRequest.SERVICE.downloadJava("Windows").execute()
+        val response = ServerRequest.SERVICE.downloadJava("Windows", "").execute()
 
         if(response.isSuccessful) {
             val body = response.body()
