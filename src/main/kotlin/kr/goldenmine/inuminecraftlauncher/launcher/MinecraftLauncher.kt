@@ -6,7 +6,6 @@ import kr.goldenmine.inuminecraftlauncher.assets.MinecraftForgeInstall
 import kr.goldenmine.inuminecraftlauncher.assets.MinecraftPackage
 import kr.goldenmine.inuminecraftlauncher.assets.MinecraftVersion
 import kr.goldenmine.inuminecraftlauncher.assets.forge.ArtifactAdditional
-import kr.goldenmine.inuminecraftlauncher.assets.forge.Data
 import kr.goldenmine.inuminecraftlauncher.assets.version.arguments.Arguments
 import kr.goldenmine.inuminecraftlauncher.assets.version.arguments.ArgumentsDeserializer
 import kr.goldenmine.inuminecraftlauncher.assets.version.libraries.Artifact
@@ -107,6 +106,31 @@ class MinecraftLauncher(
         }
     }
 
+    fun executeServerAndCopyUniversal() {
+        val fullVersion =
+            "${launcherSettings.instanceSettings.minecraftVersion}-${launcherSettings.instanceSettings.forgeVersion}"
+        val folder = File(
+            launcherSettings.launcherDirectories.forgeDirectory,
+            "${launcherSettings.instanceSettings.getForgeInstallerFileFolder()}-server"
+        )
+
+        val forgeInstallerFile = File(
+            launcherSettings.launcherDirectories.forgeDirectory,
+            launcherSettings.instanceSettings.getForgeInstallerFileName()
+        )
+
+        val javaPath = launcherSettings.javaRepository.primary ?: throw RuntimeException("no java")
+        val command = "${javaPath.absolutePath} -jar ${forgeInstallerFile.absolutePath} --installServer ${folder.absolutePath}"
+        log.info("executing $command")
+        val code = runProcessAndWait(command.split(" "), "MS949")
+        log.info("code $code")
+
+        val universalFileName = "libraries/net/minecraftforge/forge/$fullVersion/forge-$fullVersion-universal.jar"
+        val universalFile = File(folder, universalFileName)
+        val dstFile = File(launcherSettings.launcherDirectories.librariesDirectory, universalFileName)
+        universalFile.copyTo(dstFile)
+    }
+
     fun installForge() {
         val minecraftForgeInstallFile = File(
             launcherSettings.launcherDirectories.forgeDirectory,
@@ -160,7 +184,7 @@ class MinecraftLauncher(
 //                if(key == "{MINECRAFT_JAR}") return minecraftClientFile.absolutePath
                 var text = text
                 for ((key, value) in replacements) {
-                    text = text.replace(key , value)
+                    text = text.replace(key, value)
                 }
 
                 return text
@@ -428,6 +452,9 @@ class MinecraftLauncher(
 
         // run processors
         installForge()
+
+        // copy universal
+        executeServerAndCopyUniversal()
     }
 
     fun launchMinecraft(): Int {
