@@ -125,8 +125,8 @@ class MinecraftLauncher(
         val code = runProcessAndWait(command.split(" "), "MS949")
         log.info("code $code")
 
-        val universalFileName = "libraries/net/minecraftforge/forge/$fullVersion/forge-$fullVersion-universal.jar"
-        val universalFile = File(folder, universalFileName)
+        val universalFileName = "net/minecraftforge/forge/$fullVersion/forge-$fullVersion-universal.jar"
+        val universalFile = File(folder, "libraries/$universalFileName")
         val dstFile = File(launcherSettings.launcherDirectories.librariesDirectory, universalFileName)
         universalFile.copyTo(dstFile)
     }
