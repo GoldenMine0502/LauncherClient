@@ -48,6 +48,7 @@ class MainFrame : JFrame("INU Minecraft Launcher") {
 //        microsoftPassword.isVisible = true
         loginMicrosoft.isVisible = true
         loginINUToken.isVisible = true
+        isVisible = true
     }
 
     fun setWindowPositionMiddle(width: Int, height: Int) {
