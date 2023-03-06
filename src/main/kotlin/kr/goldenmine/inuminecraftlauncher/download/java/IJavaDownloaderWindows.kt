@@ -1,6 +1,8 @@
 package kr.goldenmine.inuminecraftlauncher.download.java
 
+import kr.goldenmine.inuminecraftlauncher.InstanceSettings
 import kr.goldenmine.inuminecraftlauncher.download.ServerRequest
+import kr.goldenmine.inuminecraftlauncher.util.OS_NAME_WINDOWS
 import kr.goldenmine.inuminecraftlauncher.util.writeResponseBodyToDisk
 import net.technicpack.utilslib.OperatingSystem
 import lombok.extern.slf4j.Slf4j
@@ -9,7 +11,9 @@ import org.slf4j.LoggerFactory
 import java.io.File
 
 @Slf4j
-class IJavaDownloaderWindows : IJavaDownloader {
+class IJavaDownloaderWindows(
+    private val instanceSettings: InstanceSettings
+) : IJavaDownloader {
     private val log: Logger = LoggerFactory.getLogger(IJavaDownloaderWindows::class.java)
 
     override val destFile: File
@@ -23,13 +27,14 @@ class IJavaDownloaderWindows : IJavaDownloader {
         get() = OperatingSystem.OSX
 
     override fun download() {
-        val response = ServerRequest.SERVICE.downloadJava("Windows", "").execute()
+        val windowsFileName = instanceSettings.javaVersionSpecific[OS_NAME_WINDOWS] ?: throw RuntimeException("no java for windows.")
+        val response = ServerRequest.SERVICE.downloadJava(OS_NAME_WINDOWS, windowsFileName).execute()
 
-        if(response.isSuccessful) {
+        if (response.isSuccessful) {
             val body = response.body()
             log.info("response is successful.")
 
-            if(body != null) {
+            if (body != null) {
                 writeResponseBodyToDisk(destFile, body)
                 log.info("downloaded java for windows.")
             }
@@ -45,14 +50,14 @@ class IJavaDownloaderWindows : IJavaDownloader {
         val javaList = routes.flatMap { route ->
             val folder = File(route)
 
-            if(folder.exists())folder.listFiles()?.filter { File(it, javaRoute).exists() } ?: listOf() else listOf()
+            if (folder.exists()) folder.listFiles()?.filter { File(it, javaRoute).exists() } ?: listOf() else listOf()
         }
 
         return javaList
     }
 
     override fun getJavaVersionName(version: Int): String {
-        if(version < 10) {
+        if (version < 10) {
             return "1.$version"
         } else {
             return "$version"
