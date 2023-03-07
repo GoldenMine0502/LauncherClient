@@ -477,9 +477,6 @@ class MinecraftLauncher(
             val commandNewLine = command.replace(" -", " \n-").replace(";", ";\n").replace(":", ":\n")
             log.info(commandNewLine)
 
-            if (OperatingSystem.getOperatingSystem() == OperatingSystem.OSX)
-                System.setProperty("jdk.lang.Process.launchMechanism", "FORK")
-
             val code = runProcessAndWait(command.split(" "))
 
             log.info("process finished with exit code $code")
