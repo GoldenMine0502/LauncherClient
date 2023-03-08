@@ -282,6 +282,7 @@ class MinecraftLauncher(
                 log.info("    " + lib.absolutePath)
 //                log.info("    " + lib.toURI().toURL())
             }
+
             if (err.isNotEmpty()) {
                 log.error("  Missing Processor Dependencies: $err")
                 return@forEach
