@@ -93,7 +93,7 @@ class MinecraftDataDownloader(
         ) { ServerRequest.SERVICE.downloadShader(launcherSettings.instanceSettings.shader) }
     }
 
-    fun downloadOption() {
+    fun downloadOptions() {
         /*
         options.txt
         optionsof.txt
@@ -120,6 +120,7 @@ class MinecraftDataDownloader(
         downloadJava()
         downloadMods()
         downloadShader()
+        downloadOptions()
     }
 
 
