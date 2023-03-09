@@ -30,6 +30,9 @@ class MainFrameController(
         loadClientInfo()
         updateProfile()
         registerAllEvents()
+
+        addLog("Developer: GoldenMine (https://github.com/GoldenMine0502)")
+        addLog("Special Thanks To: RanolP (https://github.com/RanolP)")
     }
 
     private fun loadClientInfo() {

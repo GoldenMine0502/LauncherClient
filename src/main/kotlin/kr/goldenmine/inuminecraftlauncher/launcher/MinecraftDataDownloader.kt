@@ -5,8 +5,10 @@ import kr.goldenmine.inuminecraftlauncher.download.ServerRequest
 import kr.goldenmine.inuminecraftlauncher.util.Compress
 import kr.goldenmine.inuminecraftlauncher.util.OS_NAME
 import kr.goldenmine.inuminecraftlauncher.util.writeResponseBodyToDisk
+import okhttp3.ResponseBody
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
+import retrofit2.Call
 import java.io.File
 
 class MinecraftDataDownloader(
@@ -40,7 +42,7 @@ class MinecraftDataDownloader(
             } else {
                 log.info("java already exists. $javaFileName")
             }
-        } catch(ex: Exception) {
+        } catch (ex: Exception) {
             log.error(ex.message, ex)
             log.info("using local java")
         }
@@ -73,18 +75,66 @@ class MinecraftDataDownloader(
         }
 
         // delete old version
-        modsFolder.listFiles()?.forEach { file->
+        modsFolder.listFiles()?.forEach { file ->
             val find = launcherSettings.instanceSettings.mods.any { file.name.contains(it) }
 
-            if(!find) {
+            if (!find) {
                 log.info("deleting old version ${file.name}")
                 file.delete()
             }
         }
     }
 
+    fun downloadShader() {
+        val shaderFileName = "${launcherSettings.instanceSettings.shader}.zip"
+        val shaderFile = File(
+            launcherSettings.launcherDirectories.getInstanceDirectory(launcherSettings.instanceSettings.instanceName),
+            "shaderpacks/$shaderFileName"
+        )
+        shaderFile.parentFile.mkdirs()
+
+        if(!shaderFile.exists()) {
+            val response = ServerRequest.SERVICE.downloadShader(launcherSettings.instanceSettings.shader).execute()
+            if (!response.isSuccessful) throw RuntimeException("failed to download shader $shaderFileName. response is not successful.")
+
+            val body = response.body() ?: throw RuntimeException("failed to download shader $shaderFile. no body.")
+
+            writeResponseBodyToDisk(shaderFile, body)
+            log.info("downloaded shader $shaderFile")
+        } else {
+            log.info("shader $shaderFile already exists.")
+        }
+    }
+
+    fun downloadAutomatically(directory: File, fileName: String, type: String, request: (param: String) -> Call<ResponseBody>) {
+        directory.mkdirs()
+        val file = File(directory, fileName)
+
+        if(!file.exists()) {
+            val response = request.invoke(fileName).execute()
+            if (!response.isSuccessful) throw RuntimeException("failed to download $type $fileName. response is not successful.")
+
+            val body = response.body() ?: throw RuntimeException("failed to download $type $fileName. no body.")
+
+            writeResponseBodyToDisk(file, body)
+            log.info("downloaded $type $fileName")
+        } else {
+            log.info("$type $fileName already exists.")
+        }
+    }
+
+    fun downloadOption() {
+        /*
+        options.txt
+        optionsof.txt
+        optionsshaders.txt
+         */
+
+    }
+
     fun download() {
         downloadJava()
         downloadMods()
+        downloadShader()
     }
 }
