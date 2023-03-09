@@ -6,6 +6,8 @@ class InstanceSettings(
     val forgeVersion: String,
     val javaVersion: Int,
     val javaVersionSpecific: Map<String, String>,
+    val xms: Int,
+    val xmx: Int,
     val instanceName: String,
     val ip: String,
     val port: Int,
