@@ -86,31 +86,53 @@ class MinecraftDataDownloader(
     }
 
     fun downloadShader() {
-        val shaderFileName = "${launcherSettings.instanceSettings.shader}.zip"
-        val shaderFile = File(
+        downloadAutomatically(
             launcherSettings.launcherDirectories.getInstanceDirectory(launcherSettings.instanceSettings.instanceName),
-            "shaderpacks/$shaderFileName"
-        )
-        shaderFile.parentFile.mkdirs()
+            "${launcherSettings.instanceSettings.shader}.zip",
+            "shader",
+        ) { ServerRequest.SERVICE.downloadShader(launcherSettings.instanceSettings.shader) }
+    }
 
-        if(!shaderFile.exists()) {
-            val response = ServerRequest.SERVICE.downloadShader(launcherSettings.instanceSettings.shader).execute()
-            if (!response.isSuccessful) throw RuntimeException("failed to download shader $shaderFileName. response is not successful.")
+    fun downloadOption() {
+        /*
+        options.txt
+        optionsof.txt
+        optionsshaders.txt
+         */
 
-            val body = response.body() ?: throw RuntimeException("failed to download shader $shaderFile. no body.")
+        val directory =
+            launcherSettings.launcherDirectories.getInstanceDirectory(launcherSettings.instanceSettings.instanceName)
 
-            writeResponseBodyToDisk(shaderFile, body)
-            log.info("downloaded shader $shaderFile")
-        } else {
-            log.info("shader $shaderFile already exists.")
+        downloadAutomatically(directory, "options.txt", "options") {
+            ServerRequest.SERVICE.downloadShader("inu1165")
+        }
+
+        downloadAutomatically(directory, "optionsof.txt", "optionsof") {
+            ServerRequest.SERVICE.downloadShader("inu1165of")
+        }
+
+        downloadAutomatically(directory, "optionsshaders.txt", "optionsshaders") {
+            ServerRequest.SERVICE.downloadShader("inu1165shaders")
         }
     }
 
-    fun downloadAutomatically(directory: File, fileName: String, type: String, request: (param: String) -> Call<ResponseBody>) {
+    fun download() {
+        downloadJava()
+        downloadMods()
+        downloadShader()
+    }
+
+
+    fun downloadAutomatically(
+        directory: File,
+        fileName: String,
+        type: String,
+        request: (param: String) -> Call<ResponseBody>
+    ) {
         directory.mkdirs()
         val file = File(directory, fileName)
 
-        if(!file.exists()) {
+        if (!file.exists()) {
             val response = request.invoke(fileName).execute()
             if (!response.isSuccessful) throw RuntimeException("failed to download $type $fileName. response is not successful.")
 
@@ -121,20 +143,5 @@ class MinecraftDataDownloader(
         } else {
             log.info("$type $fileName already exists.")
         }
-    }
-
-    fun downloadOption() {
-        /*
-        options.txt
-        optionsof.txt
-        optionsshaders.txt
-         */
-
-    }
-
-    fun download() {
-        downloadJava()
-        downloadMods()
-        downloadShader()
     }
 }
