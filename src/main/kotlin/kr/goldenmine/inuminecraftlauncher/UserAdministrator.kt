@@ -18,9 +18,12 @@ class UserAdministrator(launcherDirectories: LauncherDirectories) {
     private val userModel = UserModel(users, microsoftAuthenticator)
 
     fun login(): MicrosoftUser {
+        log.info(users.users.toString())
+
         return if(users.users.isEmpty()) {
             val microsoftUser = userModel.microsoftAuthenticator.loginNewUser()
             users.addUser(microsoftUser)
+            log.info(microsoftUser.toString())
             microsoftUser
         } else { // refresh
             try {
