@@ -10,7 +10,7 @@ class MainFrame : JFrame("INU Minecraft Launcher") {
 //    val microsoftPassword = JPasswordField()
     val loginMicrosoft = JButton("마이크로소프트로 로그인")
     val logoutMicrosoft = JButton("로그아웃")
-    private val loginINUToken = JButton("게스트")
+    val loginGuest = JButton("게스트")
     val profileInfo = JLabel("계정: ")
     val logArea = JTextArea()
 //    private val idPasswordPanel = JPanel()
@@ -28,7 +28,7 @@ class MainFrame : JFrame("INU Minecraft Launcher") {
 //        microsoftId.setBounds(0, 0, 200, 30)
 //        microsoftPassword.setBounds(0, 40, 200, 30)
         loginMicrosoft.setBounds(20, 20, 290, 70)
-        loginINUToken.setBounds(320, 20, 80, 70)
+        loginGuest.setBounds(320, 20, 80, 70)
         profileInfo.setBounds(20, 90, 380, 20)
         logoutMicrosoft.setBounds(20, 110, 380, 40)
         logArea.setBounds(20, 150, 380, 150)
@@ -39,7 +39,7 @@ class MainFrame : JFrame("INU Minecraft Launcher") {
 
 //        add(idPasswordPanel)
         add(loginMicrosoft)
-        add(loginINUToken)
+        add(loginGuest)
         add(profileInfo)
         add(logoutMicrosoft)
         contentPane.add(logAreaPane)
@@ -47,7 +47,7 @@ class MainFrame : JFrame("INU Minecraft Launcher") {
 //        microsoftId.isVisible = true
 //        microsoftPassword.isVisible = true
         loginMicrosoft.isVisible = true
-        loginINUToken.isVisible = true
+        loginGuest.isVisible = true
         isVisible = true
     }
 
