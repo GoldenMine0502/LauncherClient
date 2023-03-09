@@ -26,7 +26,9 @@ fun main() {
             "thutcore-1.16.4-8.2.0.jar",
             "thuttech-1.16.4-9.1.2.jar",
             "worldedit-mod-7.2.5-dist.jar"
-        )
+        ),
+        "BSL+Standard+v6.1.1",
+        "1.0.0.3"
     )
 
     val gson = GsonBuilder().setPrettyPrinting().create()
