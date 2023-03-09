@@ -16,14 +16,19 @@ class MicrosoftLoginTest {
             "1.16",
             "36.2.34",
             8,
+
             mapOf(
                 Pair(OS_NAME_MAC, "jdk1.8.0_351.jdk"),
                 Pair(OS_NAME_WINDOWS, "jdk8u351")
             ),
+            1024,
+            4096,
             "inu1165",
             "minecraft.goldenmine.kr",
             20000,
-            listOf()
+            listOf(),
+            "test",
+            "test"
         )
 
         val launcherSettings = LauncherSettings(

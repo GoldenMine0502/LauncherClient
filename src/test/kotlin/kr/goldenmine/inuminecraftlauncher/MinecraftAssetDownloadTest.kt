@@ -3,10 +3,7 @@ package kr.goldenmine.inuminecraftlauncher
 import com.google.gson.Gson
 import kr.goldenmine.inuminecraftlauncher.assets.MinecraftForgeVersion
 import kr.goldenmine.inuminecraftlauncher.download.tasks.MinecraftForgeDownloadTask
-import kr.goldenmine.inuminecraftlauncher.launcher.DefaultLauncherDirectories
-import kr.goldenmine.inuminecraftlauncher.launcher.MinecraftCommandBuilder
-import kr.goldenmine.inuminecraftlauncher.launcher.MinecraftDownloader
-import kr.goldenmine.inuminecraftlauncher.launcher.MinecraftLauncher
+import kr.goldenmine.inuminecraftlauncher.launcher.*
 import kr.goldenmine.inuminecraftlauncher.launcher.models.MinecraftAccount
 import kr.goldenmine.inuminecraftlauncher.util.OS_NAME_MAC
 import kr.goldenmine.inuminecraftlauncher.util.OS_NAME_WINDOWS
@@ -28,10 +25,23 @@ class MinecraftAssetDownloadTest {
             Pair(OS_NAME_MAC, "jdk1.8.0_351.jdk"),
             Pair(OS_NAME_WINDOWS, "jdk8u351")
         ),
+        1024,
+        4096,
         "inu1165",
         "minecraft.goldenmine.kr",
         20000,
-        listOf()
+        listOf(
+            "chiselsandbits-1.0.43.jar",
+            "immersive-portals-0.17-mc1.16.5-forge.jar",
+            "inumodelloader-1.3.4-SNAPSHOT.jar",
+            "test.jar",
+            "OptiFine_1.16.5_HD_U_G7.jar",
+            "thutcore-1.16.4-8.2.0.jar",
+            "thuttech-1.16.4-9.1.2.jar",
+            "worldedit-mod-7.2.5-dist.jar"
+        ),
+        "BSL+Standard+v6.1.1",
+        "test"
     )
     private val minecraftAccount = MinecraftAccount("test", "test", "test", "test")
     private val launcherSettings = LauncherSettings(
@@ -160,5 +170,11 @@ class MinecraftAssetDownloadTest {
         val launcher = MinecraftLauncher(launcherSettings, builder)
 
         launcher.preProcess()
+    }
+
+    @Test
+    fun testDownloadShaderAndOptions() {
+        val downloader = MinecraftDataDownloader(launcherSettings)
+        downloader.download()
     }
 }

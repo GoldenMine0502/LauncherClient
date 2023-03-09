@@ -1,10 +1,9 @@
 package kr.goldenmine.inuminecraftlauncher.launcher
 
 import kr.goldenmine.inuminecraftlauncher.LauncherSettings
+import kr.goldenmine.inuminecraftlauncher.download.MD5Response
 import kr.goldenmine.inuminecraftlauncher.download.ServerRequest
-import kr.goldenmine.inuminecraftlauncher.util.Compress
-import kr.goldenmine.inuminecraftlauncher.util.OS_NAME
-import kr.goldenmine.inuminecraftlauncher.util.writeResponseBodyToDisk
+import kr.goldenmine.inuminecraftlauncher.util.*
 import okhttp3.ResponseBody
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
@@ -58,20 +57,14 @@ class MinecraftDataDownloader(
         modsFolder.mkdirs()
 
         launcherSettings.instanceSettings.mods.forEach { modName ->
-            val modFile = File(modsFolder, modName)
-
-            // 존재하지 않을 때만 다운로드
-            if (!modFile.exists()) {
-                val response = ServerRequest.SERVICE.downloadMod(modName).execute()
-                if (!response.isSuccessful) throw RuntimeException("failed to download mod $modName. response is not successful.")
-
-                val body = response.body() ?: throw RuntimeException("failed to download mod $modName. no body.")
-
-                writeResponseBodyToDisk(modFile, body)
-                log.info("downloaded mod $modName")
-            } else {
-                log.info("mod $modName already exists.")
-            }
+            // 제대로 존재하지 않으면 다운로드
+            downloadAutomatically(
+                modsFolder,
+                modName,
+                "mod",
+                { ServerRequest.SERVICE.downloadMod(modName) },
+                { ServerRequest.SERVICE.checkMod(modName) },
+            )
         }
 
         // delete old version
@@ -86,11 +79,18 @@ class MinecraftDataDownloader(
     }
 
     fun downloadShader() {
-        downloadAutomatically(
-            launcherSettings.launcherDirectories.getInstanceDirectory(launcherSettings.instanceSettings.instanceName),
-            "${launcherSettings.instanceSettings.shader}.zip",
-            "shader",
-        ) { ServerRequest.SERVICE.downloadShader(launcherSettings.instanceSettings.shader) }
+
+        try {
+            downloadAutomatically(
+                File(launcherSettings.launcherDirectories.getInstanceDirectory(launcherSettings.instanceSettings.instanceName), "shaderpacks"),
+                "${launcherSettings.instanceSettings.shader}.zip",
+                "shader",
+                { ServerRequest.SERVICE.downloadShader(launcherSettings.instanceSettings.shader) },
+                { ServerRequest.SERVICE.checkShader(launcherSettings.instanceSettings.shader) }
+            )
+        } catch(ex: RuntimeException) {
+            log.error(ex.message, ex)
+        }
     }
 
     fun downloadOptions() {
@@ -100,19 +100,42 @@ class MinecraftDataDownloader(
         optionsshaders.txt
          */
 
-        val directory =
-            launcherSettings.launcherDirectories.getInstanceDirectory(launcherSettings.instanceSettings.instanceName)
+        try {
+            val directory =
+                launcherSettings.launcherDirectories.getInstanceDirectory(launcherSettings.instanceSettings.instanceName)
 
-        downloadAutomatically(directory, "options.txt", "options") {
-            ServerRequest.SERVICE.downloadShader("inu1165")
-        }
+            val optionsStr = launcherSettings.instanceSettings.instanceName
+            val optionsOfStr = "${optionsStr}of"
+            val optionsShaderStr = "${optionsStr}shaders"
 
-        downloadAutomatically(directory, "optionsof.txt", "optionsof") {
-            ServerRequest.SERVICE.downloadShader("inu1165of")
-        }
+            downloadAutomatically(
+                directory,
+                "options.txt",
+                "options",
+                { ServerRequest.SERVICE.downloadOption(optionsStr) },
+                { ServerRequest.SERVICE.checkOption(optionsStr) },
+                false
+            )
 
-        downloadAutomatically(directory, "optionsshaders.txt", "optionsshaders") {
-            ServerRequest.SERVICE.downloadShader("inu1165shaders")
+            downloadAutomatically(
+                directory,
+                "optionsof.txt",
+                "options",
+                { ServerRequest.SERVICE.downloadOption(optionsOfStr) },
+                { ServerRequest.SERVICE.checkOption(optionsOfStr) },
+                false
+            )
+
+            downloadAutomatically(
+                directory,
+                "optionsshaders.txt",
+                "optionsshaders",
+                { ServerRequest.SERVICE.downloadOption(optionsShaderStr) },
+                { ServerRequest.SERVICE.checkOption(optionsShaderStr) },
+                false
+            )
+        } catch(ex: RuntimeException) {
+            log.error(ex.message, ex)
         }
     }
 
@@ -127,12 +150,20 @@ class MinecraftDataDownloader(
         directory: File,
         fileName: String,
         type: String,
-        request: (param: String) -> Call<ResponseBody>
+        request: (param: String) -> Call<ResponseBody>,
+        check: (param: String) -> Call<MD5Response>,
+        checkMD5: Boolean = true
     ) {
         directory.mkdirs()
         val file = File(directory, fileName)
+//        if(!file.exists()) file.createNewFile()
 
-        if (!file.exists()) {
+        val md5Server = check.invoke(fileName).execute().body()?.md5
+
+
+        if (!file.exists() || (checkMD5 && getFileMD5(file) != md5Server)) {
+            log.info("server: $md5Server client: ${if(file.exists()) getFileMD5(file) else null}")
+
             val response = request.invoke(fileName).execute()
             if (!response.isSuccessful) throw RuntimeException("failed to download $type $fileName. response is not successful.")
 
