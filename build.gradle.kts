@@ -6,6 +6,7 @@ plugins {
     id("org.springframework.boot") version "2.7.3"
     id("io.spring.dependency-management") version "1.0.13.RELEASE"
     kotlin("jvm") version "1.7.21"
+    id("edu.sc.seis.launch4j") version ("2.5.4")
     application
 }
 
@@ -112,6 +113,11 @@ tasks.withType<KotlinCompile> {
 
 application {
     mainClass.set("kr.goldenmine.inuminecraftlauncher.Main")
+}
+
+launch4j {
+    mainClassName = "kr.goldenmine.inuminecraftlauncher.Main"
+    icon = "${projectDir}/icons/inu.ico"
 }
 
 //compileJava.options.fork = true
