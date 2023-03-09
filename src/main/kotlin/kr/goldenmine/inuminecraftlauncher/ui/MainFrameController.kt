@@ -9,6 +9,7 @@ import kr.goldenmine.inuminecraftlauncher.launcher.MinecraftDownloader
 import kr.goldenmine.inuminecraftlauncher.launcher.MinecraftLauncher
 import kr.goldenmine.inuminecraftlauncher.launcher.models.MinecraftAccount
 import kr.goldenmine.inuminecraftlauncher.util.MoveToTheBottom
+import net.technicpack.minecraftcore.microsoft.auth.MicrosoftUser
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import java.io.*
@@ -30,6 +31,9 @@ class MainFrameController(
         loadClientInfo()
         updateProfile()
         registerAllEvents()
+
+        addLog("Developer: GoldenMine (https://github.com/GoldenMine0502)")
+        addLog("Special Thanks To: RanolP (https://github.com/RanolP)")
     }
 
     private fun loadClientInfo() {
@@ -69,11 +73,25 @@ class MainFrameController(
         updateProfile()
     }
 
+    fun loginRepeat(count: Int): MicrosoftUser {
+        for(i in 1..5) {
+            try {
+                Thread.sleep(100L)
+                return launcherSettings.userAdministrator.login()
+            } catch(ex: Exception) {
+                log.error(ex.message, ex)
+            }
+        }
+
+        throw RuntimeException("microsoft login failed")
+    }
+
     private fun tryMicrosoftLogin() {
+        disableLoginButton()
         addLog("pressed microsoft login")
         Thread {
             try {
-                val microsoftUser = launcherSettings.userAdministrator.login()
+                val microsoftUser = loginRepeat(5)
                 updateProfile()
 
                 val minecraftAccount = MinecraftAccount(
@@ -110,9 +128,19 @@ class MainFrameController(
             } catch (ex: IOException) {
                 log.error(ex.message, ex)
                 addLog(ex.message)
+            } finally {
+                enableLoginButton()
             }
         }.start()
     }
 
+    fun disableLoginButton() {
+        mainFrame.loginMicrosoft.isEnabled = false
+        mainFrame.loginGuest.isEnabled = false
+    }
 
+    fun enableLoginButton() {
+        mainFrame.loginMicrosoft.isEnabled = true
+        mainFrame.loginGuest.isEnabled = true
+    }
 }

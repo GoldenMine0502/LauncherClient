@@ -282,6 +282,7 @@ class MinecraftLauncher(
                 log.info("    " + lib.absolutePath)
 //                log.info("    " + lib.toURI().toURL())
             }
+
             if (err.isNotEmpty()) {
                 log.error("  Missing Processor Dependencies: $err")
                 return@forEach
@@ -476,9 +477,6 @@ class MinecraftLauncher(
 
             val commandNewLine = command.replace(" -", " \n-").replace(";", ";\n").replace(":", ":\n")
             log.info(commandNewLine)
-
-            if (OperatingSystem.getOperatingSystem() == OperatingSystem.OSX)
-                System.setProperty("jdk.lang.Process.launchMechanism", "FORK")
 
             val code = runProcessAndWait(command.split(" "))
 

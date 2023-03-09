@@ -156,11 +156,14 @@ class MinecraftCommandBuilder(
         val targetDirectory = "-Dminecraft.applet.TargetDirectory=\${game_directory}"
         concatenator.appendString(targetDirectory)
 
+        val xmx = "-Xmx${launcherSettings.instanceSettings.xmx}m"
+        concatenator.appendString(xmx)
+
         if (launcherSettings.instanceSettings.mods.isEmpty()) {
-            val mainClass = "-Xms256m net.minecraft.client.main.Main"
+            val mainClass = "-Xms${launcherSettings.instanceSettings.xms}m net.minecraft.client.main.Main"
             concatenator.appendString(mainClass)
         } else {
-            val mainClass = "-Xms1024m cpw.mods.modlauncher.Launcher"
+            val mainClass = "-Xms${launcherSettings.instanceSettings.xms}m cpw.mods.modlauncher.Launcher"
             concatenator.appendString(mainClass)
         }
 

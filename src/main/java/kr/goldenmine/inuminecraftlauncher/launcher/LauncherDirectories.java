@@ -16,4 +16,8 @@ public interface LauncherDirectories {
     File getInstancesDirectory();
 
     File getJavaDirectory();
+
+    default File getInstanceDirectory(String directoryName) {
+        return new File(getInstancesDirectory(), directoryName);
+    }
 }

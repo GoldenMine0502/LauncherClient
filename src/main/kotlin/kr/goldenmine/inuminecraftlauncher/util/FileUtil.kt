@@ -1,6 +1,7 @@
 package kr.goldenmine.inuminecraftlauncher.util
 
 import java.io.File
+import java.io.FileInputStream
 import java.io.FileOutputStream
 import java.nio.file.Files
 import java.nio.file.Paths
@@ -71,6 +72,27 @@ fun listFilesRecursively(dir: File): List<File> {
         }
     }
     return files
+}
+
+fun getFileMD5(file: File): String {
+    val md = MessageDigest.getInstance("MD5")
+    val fis = FileInputStream(file)
+    val buffer = ByteArray(8192)
+    var read: Int = fis.read(buffer)
+
+    while (read > 0) {
+        md.update(buffer, 0, read)
+        read = fis.read(buffer)
+    }
+
+    val md5 = md.digest()
+
+    val sb = StringBuilder()
+    for (i in md5.indices) {
+        sb.append(Integer.toHexString(0xFF and md5[i].toInt()))
+    }
+
+    return sb.toString()
 }
 
 fun unzipJar(jarFile: File, destDir: File) {

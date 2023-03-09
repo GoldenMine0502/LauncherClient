@@ -22,7 +22,7 @@ class JavaRepository(
 
     init {
         downloaders[OperatingSystem.OSX] = IJavaDownloaderMac()
-        downloaders[OperatingSystem.WINDOWS] = IJavaDownloaderWindows()
+        downloaders[OperatingSystem.WINDOWS] = IJavaDownloaderWindows(instanceSettings)
 //        downloaders[OperatingSystem.WINDOWS] = I
 
         val downloader = downloaders[OperatingSystem.getOperatingSystem()]

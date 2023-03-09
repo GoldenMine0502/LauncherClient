@@ -1,12 +1,13 @@
 package kr.goldenmine.inuminecraftlauncher.launcher
 
 import kr.goldenmine.inuminecraftlauncher.LauncherSettings
+import kr.goldenmine.inuminecraftlauncher.download.MD5Response
 import kr.goldenmine.inuminecraftlauncher.download.ServerRequest
-import kr.goldenmine.inuminecraftlauncher.util.Compress
-import kr.goldenmine.inuminecraftlauncher.util.OS_NAME
-import kr.goldenmine.inuminecraftlauncher.util.writeResponseBodyToDisk
+import kr.goldenmine.inuminecraftlauncher.util.*
+import okhttp3.ResponseBody
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
+import retrofit2.Call
 import java.io.File
 
 class MinecraftDataDownloader(
@@ -40,8 +41,8 @@ class MinecraftDataDownloader(
             } else {
                 log.info("java already exists. $javaFileName")
             }
-        } catch(ex: Exception) {
-            ex.printStackTrace()
+        } catch (ex: Exception) {
+            log.error(ex.message, ex)
             log.info("using local java")
         }
     }
@@ -56,25 +57,122 @@ class MinecraftDataDownloader(
         modsFolder.mkdirs()
 
         launcherSettings.instanceSettings.mods.forEach { modName ->
-            val modFile = File(modsFolder, modName)
+            // 제대로 존재하지 않으면 다운로드
+            downloadAutomatically(
+                modsFolder,
+                modName,
+                "mod",
+                { ServerRequest.SERVICE.downloadMod(modName) },
+                { ServerRequest.SERVICE.checkMod(modName) },
+            )
+        }
 
-            // 존재하지 않을 때만 다운로드
-            if (!modFile.exists()) {
-                val response = ServerRequest.SERVICE.downloadMod(modName).execute()
-                if (!response.isSuccessful) throw RuntimeException("failed to download mod $modName. response is not successful.")
+        // delete old version
+        modsFolder.listFiles()?.forEach { file ->
+            val find = launcherSettings.instanceSettings.mods.any { file.name.contains(it) }
 
-                val body = response.body() ?: throw RuntimeException("failed to download mod $modName. no body.")
-
-                writeResponseBodyToDisk(modFile, body)
-                log.info("downloaded mod $modName")
-            } else {
-                log.info("mod $modName already exists.")
+            if (!find) {
+                log.info("deleting old version ${file.name}")
+                file.delete()
             }
+        }
+    }
+
+    fun downloadShader() {
+
+        try {
+            downloadAutomatically(
+                File(launcherSettings.launcherDirectories.getInstanceDirectory(launcherSettings.instanceSettings.instanceName), "shaderpacks"),
+                "${launcherSettings.instanceSettings.shader}.zip",
+                "shader",
+                { ServerRequest.SERVICE.downloadShader(launcherSettings.instanceSettings.shader) },
+                { ServerRequest.SERVICE.checkShader(launcherSettings.instanceSettings.shader) }
+            )
+        } catch(ex: RuntimeException) {
+            log.error(ex.message, ex)
+        }
+    }
+
+    fun downloadOptions() {
+        /*
+        options.txt
+        optionsof.txt
+        optionsshaders.txt
+         */
+
+        try {
+            val directory =
+                launcherSettings.launcherDirectories.getInstanceDirectory(launcherSettings.instanceSettings.instanceName)
+
+            val optionsStr = launcherSettings.instanceSettings.instanceName
+            val optionsOfStr = "${optionsStr}of"
+            val optionsShaderStr = "${optionsStr}shaders"
+
+            downloadAutomatically(
+                directory,
+                "options.txt",
+                "options",
+                { ServerRequest.SERVICE.downloadOption(optionsStr) },
+                { ServerRequest.SERVICE.checkOption(optionsStr) },
+                false
+            )
+
+            downloadAutomatically(
+                directory,
+                "optionsof.txt",
+                "options",
+                { ServerRequest.SERVICE.downloadOption(optionsOfStr) },
+                { ServerRequest.SERVICE.checkOption(optionsOfStr) },
+                false
+            )
+
+            downloadAutomatically(
+                directory,
+                "optionsshaders.txt",
+                "optionsshaders",
+                { ServerRequest.SERVICE.downloadOption(optionsShaderStr) },
+                { ServerRequest.SERVICE.checkOption(optionsShaderStr) },
+                false
+            )
+        } catch(ex: RuntimeException) {
+            log.error(ex.message, ex)
         }
     }
 
     fun download() {
         downloadJava()
         downloadMods()
+        downloadShader()
+        downloadOptions()
+    }
+
+    fun downloadAutomatically(
+        directory: File,
+        fileName: String,
+        type: String,
+        request: (param: String) -> Call<ResponseBody>,
+        check: (param: String) -> Call<MD5Response>,
+        checkMD5: Boolean = true
+    ) {
+        directory.mkdirs()
+        val file = File(directory, fileName)
+//        if(!file.exists()) file.createNewFile()
+
+        val md5Server = check.invoke(fileName).execute().body()?.md5
+
+
+        if (!file.exists() || (checkMD5 && getFileMD5(file) != md5Server)) {
+            log.info("server: $md5Server client: ${if(file.exists()) getFileMD5(file) else null}")
+
+            val response = request.invoke(fileName).execute()
+            if (!response.isSuccessful) throw RuntimeException("failed to download $type $fileName. response is not successful.")
+
+            val body = response.body() ?: throw RuntimeException("failed to download $type $fileName. no body.")
+
+            writeResponseBodyToDisk(file, body)
+            log.info("downloaded $type $fileName")
+        } else {
+            log.info("$type $fileName already exists.")
+        }
     }
 }
