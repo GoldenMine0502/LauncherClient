@@ -123,7 +123,6 @@ class MinecraftDataDownloader(
         downloadOptions()
     }
 
-
     fun downloadAutomatically(
         directory: File,
         fileName: String,
