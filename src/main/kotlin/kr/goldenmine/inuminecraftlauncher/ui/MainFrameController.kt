@@ -119,7 +119,6 @@ class MainFrameController(
                 addLog("launching minecraft...")
                 val code = launcher.launchMinecraft()
                 addLog("process finished with exit code $code")
-                enableLoginButton()
             } catch (ex: InterruptedException) {
                 log.error(ex.message, ex)
                 addLog(ex.message)
@@ -129,6 +128,8 @@ class MainFrameController(
             } catch (ex: IOException) {
                 log.error(ex.message, ex)
                 addLog(ex.message)
+            } finally {
+                enableLoginButton()
             }
         }.start()
     }
