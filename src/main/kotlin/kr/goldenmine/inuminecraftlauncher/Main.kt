@@ -48,7 +48,7 @@ worldedit-mod-7.2.5-dist.jar
 
         if(instanceSettings != null) {
             log.info(GsonBuilder().setPrettyPrinting().create().toJson(instanceSettings))
-            val mainFrame = MainFrame()
+            val mainFrame = MainFrame(instanceSettings.version)
 
             val launcherDirectories = DefaultLauncherDirectories(mainFolder)
 
