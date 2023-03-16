@@ -18,6 +18,9 @@ object Main {
 
     @JvmStatic
     fun main(args: Array<String>) {
+        if(args.isNotEmpty()) {
+            DevelopmentConfiguration.IS_DEVELOPMENT = args[0].toBoolean()
+        }
 
         WebDriverManager.chromedriver().setup()
 //        val builder = SpringApplicationBuilder(CoreMain::class.java)

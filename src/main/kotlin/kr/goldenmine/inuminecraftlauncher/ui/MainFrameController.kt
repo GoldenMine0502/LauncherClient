@@ -8,12 +8,13 @@ import kr.goldenmine.inuminecraftlauncher.launcher.MinecraftDataDownloader
 import kr.goldenmine.inuminecraftlauncher.launcher.MinecraftDownloader
 import kr.goldenmine.inuminecraftlauncher.launcher.MinecraftLauncher
 import kr.goldenmine.inuminecraftlauncher.launcher.models.MinecraftAccount
+import kr.goldenmine.inuminecraftlauncher.server.LauncherServerService
 import kr.goldenmine.inuminecraftlauncher.util.MoveToTheBottom
 import net.technicpack.minecraftcore.microsoft.auth.MicrosoftUser
+import net.technicpack.utilslib.DesktopUtils
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import java.io.*
-import java.util.*
 import java.util.concurrent.ExecutionException
 
 class MainFrameController(
@@ -27,13 +28,14 @@ class MainFrameController(
 
     fun init() {
         MoveToTheBottom.install(mainFrame.logArea)
+        addLog("Developer: GoldenMine (https://github.com/GoldenMine0502)")
+        addLog("Special Thanks To: RanolP (https://github.com/RanolP)")
+
         mainFrame.isVisible = true
         loadClientInfo()
         updateProfile()
         registerAllEvents()
 
-        addLog("Developer: GoldenMine (https://github.com/GoldenMine0502)")
-        addLog("Special Thanks To: RanolP (https://github.com/RanolP)")
     }
 
     private fun loadClientInfo() {
@@ -58,7 +60,7 @@ class MainFrameController(
 
     private fun registerAllEvents() {
         mainFrame.loginMicrosoft.addActionListener { tryMicrosoftLogin() }
-//        mainFrame.microsoftPassword.addActionListener { tryLogin() }
+        mainFrame.loginGuest.addActionListener { tryGuestLogin() }
 
         mainFrame.logoutMicrosoft.addActionListener { logout() }
     }
@@ -73,11 +75,11 @@ class MainFrameController(
         updateProfile()
     }
 
-    fun loginRepeat(count: Int): MicrosoftUser {
-        for(i in 1..5) {
+    fun loginRepeat(username: String?, count: Int): MicrosoftUser {
+        for(i in 1..count) {
             try {
                 Thread.sleep(100L)
-                return launcherSettings.userAdministrator.login()
+                return launcherSettings.userAdministrator.login(username) { DesktopUtils.browseUrl(it) }
             } catch(ex: Exception) {
                 log.error(ex.message, ex)
             }
@@ -86,12 +88,27 @@ class MainFrameController(
         throw RuntimeException("microsoft login failed")
     }
 
+    private fun tryGuestLogin() {
+        disableLoginButton()
+        addLog("pressed guest login")
+        Thread {
+            val minecraftAccount = LauncherServerService.LAUNCHER_SERVER.requestRandomAccount().execute().body()
+            if(minecraftAccount != null) {
+                addLog("username: ${minecraftAccount.userName}")
+                launchMinecraft(minecraftAccount)
+            } else {
+                addLog("failed to get token.")
+            }
+            enableLoginButton()
+        }.start()
+    }
+
     private fun tryMicrosoftLogin() {
         disableLoginButton()
         addLog("pressed microsoft login")
         Thread {
             try {
-                val microsoftUser = loginRepeat(5)
+                val microsoftUser = loginRepeat(launcherSettings.userAdministrator.users.users.firstOrNull(), 5)
                 updateProfile()
 
                 val minecraftAccount = MinecraftAccount(
@@ -100,25 +117,7 @@ class MainFrameController(
                     microsoftUser.accessToken,
                     "msa"
                 )
-
-                val downloader = MinecraftDownloader(launcherSettings)
-                val dataDownloader = MinecraftDataDownloader(launcherSettings)
-
-                val builder = MinecraftCommandBuilder(launcherSettings, minecraftAccount)
-
-                val launcher = MinecraftLauncher(
-                    launcherSettings,
-                    builder
-                )
-
-                addLog("checking or downloading minecraft assets...")
-                downloader.download()
-                dataDownloader.download()
-//                addLog("copying libraries...")
-//                launcher.preProcess()
-                addLog("launching minecraft...")
-                val code = launcher.launchMinecraft()
-                addLog("process finished with exit code $code")
+                launchMinecraft(minecraftAccount)
             } catch (ex: InterruptedException) {
                 log.error(ex.message, ex)
                 addLog(ex.message)
@@ -132,6 +131,27 @@ class MainFrameController(
                 enableLoginButton()
             }
         }.start()
+    }
+
+    fun launchMinecraft(minecraftAccount: MinecraftAccount) {
+        val downloader = MinecraftDownloader(launcherSettings)
+        val dataDownloader = MinecraftDataDownloader(launcherSettings)
+
+        val builder = MinecraftCommandBuilder(launcherSettings, minecraftAccount)
+
+        val launcher = MinecraftLauncher(
+            launcherSettings,
+            builder
+        )
+
+        addLog("checking or downloading minecraft assets...")
+        downloader.download()
+        dataDownloader.download()
+//                addLog("copying libraries...")
+//                launcher.preProcess()
+        addLog("launching minecraft...")
+        val code = launcher.launchMinecraft()
+        addLog("process finished with exit code $code")
     }
 
     fun disableLoginButton() {
