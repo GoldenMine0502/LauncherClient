@@ -60,6 +60,7 @@ class JavaRepository(
             if(downloader.destFile.exists()) {
                 val fileMd5 = getFileMD5(downloader.destFile)
 
+                // TODO download java automatically
 //                if (md5 == null) {
 //                    throw RuntimeException("the file doesn't exist on the server")
 //                }

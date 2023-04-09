@@ -6,11 +6,12 @@ plugins {
     id("org.springframework.boot") version "2.7.3"
     id("io.spring.dependency-management") version "1.0.13.RELEASE"
     kotlin("jvm") version "1.7.21"
+    id("edu.sc.seis.launch4j") version ("2.5.4")
     application
 }
 
 group = "kr.goldenmine.inuminecraftlauncher.client"
-version = "1.1.0.1-SNAPSHOT"
+version = "1.1.2-SNAPSHOT"
 
 repositories {
     mavenCentral()
@@ -21,7 +22,6 @@ repositories {
 }
 
 dependencies {
-
     implementation("org.springframework.boot:spring-boot-starter-web")
     implementation("org.springframework.boot:spring-boot-starter")
     implementation("org.springframework.boot:spring-boot-starter-parent:2.7.3")
@@ -58,14 +58,13 @@ dependencies {
 
 //    implementation files("libs/HMCL-3.5.SNAPSHOT.jar")
 //    implementation(fileTree(mapOf("dir" to "libs", "include" to listOf("*.jar"))))
-//    implementation("libs/HMCL-3.5.SNAPSHOT.jar")
+//    implementation("libs/INUMinecraftLauncherCore-1.0-SNAPSHOT.jar")
 
     testImplementation("org.junit.jupiter:junit-jupiter-api:5.9.0")
     testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:5.9.0")
     testImplementation("org.springframework.boot:spring-boot-starter-test")
     testImplementation("junit:junit:4.13.2")
 
-    implementation(fileTree(mapOf("dir" to "libs", "include" to listOf("*.jar"))))
     testImplementation(kotlin("test")) // The Kotlin test library
 
 //    implementation(project(":Core"))
@@ -73,12 +72,14 @@ dependencies {
 
 //    testImplementation(kotlin("test"))
 
+    implementation(fileTree(mapOf("dir" to "libs", "include" to listOf("*.jar"))))
+
     implementation("com.google.oauth-client:google-oauth-client:1.34.1")
     implementation("com.google.oauth-client:google-oauth-client-jetty:1.34.1")
     implementation("com.google.http-client:google-http-client:1.42.2")
     implementation("com.google.http-client:google-http-client-gson:1.42.2")
-}
 
+}
 /*
         <dependency>
             <groupId>com.google.oauth-client</groupId>
@@ -112,6 +113,11 @@ tasks.withType<KotlinCompile> {
 
 application {
     mainClass.set("kr.goldenmine.inuminecraftlauncher.Main")
+}
+
+launch4j {
+    mainClassName = "kr.goldenmine.inuminecraftlauncher.Main"
+    icon = "${projectDir}/icons/inu.ico"
 }
 
 //compileJava.options.fork = true

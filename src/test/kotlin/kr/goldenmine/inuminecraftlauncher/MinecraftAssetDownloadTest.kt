@@ -57,11 +57,12 @@ class MinecraftAssetDownloadTest {
         val downloader = MinecraftDownloader(launcherSettings)
         downloader.download()
 
+        val dataDownloader = MinecraftDataDownloader(launcherSettings)
+        dataDownloader.download()
+
         val builder = MinecraftCommandBuilder(launcherSettings, minecraftAccount)
 
         val launcher = MinecraftLauncher(launcherSettings, builder)
-//        launcher.download()
-//        launcher.preProcess()
         launcher.launchMinecraft()
     }
 

@@ -18,6 +18,9 @@ object Main {
 
     @JvmStatic
     fun main(args: Array<String>) {
+        if(args.isNotEmpty()) {
+            DevelopmentConfiguration.IS_DEVELOPMENT = args[0].toBoolean()
+        }
 
         WebDriverManager.chromedriver().setup()
 //        val builder = SpringApplicationBuilder(CoreMain::class.java)
@@ -48,7 +51,7 @@ worldedit-mod-7.2.5-dist.jar
 
         if(instanceSettings != null) {
             log.info(GsonBuilder().setPrettyPrinting().create().toJson(instanceSettings))
-            val mainFrame = MainFrame()
+            val mainFrame = MainFrame(instanceSettings.version)
 
             val launcherDirectories = DefaultLauncherDirectories(mainFolder)
 

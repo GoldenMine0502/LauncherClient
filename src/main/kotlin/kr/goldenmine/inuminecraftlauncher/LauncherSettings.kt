@@ -2,6 +2,7 @@ package kr.goldenmine.inuminecraftlauncher
 
 import kr.goldenmine.inuminecraftlauncher.download.java.JavaRepository
 import kr.goldenmine.inuminecraftlauncher.launcher.LauncherDirectories
+import kr.goldenmine.launchercore.UserAdministrator
 
 /*
                 val temporaryDirectory = DefaultLauncherDirectories(File("inulauncher"))

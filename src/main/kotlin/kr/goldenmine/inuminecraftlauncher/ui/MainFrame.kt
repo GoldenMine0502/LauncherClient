@@ -5,7 +5,7 @@ import java.awt.GraphicsEnvironment
 import javax.swing.*
 
 @Slf4j
-class MainFrame : JFrame("INU Minecraft Launcher") {
+class MainFrame(version: String) : JFrame("INU Minecraft Launcher $version") {
 //    val microsoftId = JTextField()
 //    val microsoftPassword = JPasswordField()
     val loginMicrosoft = JButton("마이크로소프트로 로그인")
