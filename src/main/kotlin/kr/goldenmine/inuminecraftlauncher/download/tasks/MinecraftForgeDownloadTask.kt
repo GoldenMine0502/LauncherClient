@@ -45,5 +45,4 @@ class MinecraftForgeDownloadTask(
         }
         return false
     }
-
 }

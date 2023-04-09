@@ -1,9 +1,7 @@
 package kr.goldenmine.inuminecraftlauncher.download.java
 
 import kr.goldenmine.inuminecraftlauncher.InstanceSettings
-import kr.goldenmine.inuminecraftlauncher.download.ServerRequest
 import kr.goldenmine.inuminecraftlauncher.util.Compress
-import kr.goldenmine.inuminecraftlauncher.util.deleteRecursive
 import kr.goldenmine.inuminecraftlauncher.util.getFileMD5
 import net.technicpack.utilslib.OperatingSystem
 import org.slf4j.Logger
