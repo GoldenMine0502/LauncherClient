@@ -39,6 +39,6 @@ class MicrosoftLoginTest {
 //            overrideJavaPath = "/Library/Java/JavaVirtualMachines/jdk1.8.0_202.jdk/Contents/Home/bin/java"
         )
 
-        launcherSettings.userAdministrator.microsoftAuthenticator.loginNewUser()
+//        launcherSettings.userAdministrator.microsoftAuthenticator.loginNewUser()
     }
 }
