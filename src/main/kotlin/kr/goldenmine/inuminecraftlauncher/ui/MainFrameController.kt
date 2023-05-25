@@ -2,6 +2,7 @@ package kr.goldenmine.inuminecraftlauncher.ui
 
 import com.google.common.reflect.TypeToken
 import com.google.gson.Gson
+import kr.goldenmine.inuminecraftlauncher.DevelopmentConfiguration
 import kr.goldenmine.inuminecraftlauncher.LauncherSettings
 import kr.goldenmine.inuminecraftlauncher.launcher.MinecraftCommandBuilder
 import kr.goldenmine.inuminecraftlauncher.launcher.MinecraftDataDownloader
@@ -36,6 +37,7 @@ class MainFrameController(
         updateProfile()
         registerAllEvents()
 
+        addLog("development: ${DevelopmentConfiguration.IS_DEVELOPMENT}" )
     }
 
     private fun loadClientInfo() {
