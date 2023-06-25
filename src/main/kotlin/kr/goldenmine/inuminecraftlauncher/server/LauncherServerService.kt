@@ -16,9 +16,9 @@ class LauncherServerService {
         val LAUNCHER_SERVER: LauncherServerApi = Retrofit.Builder()
             .baseUrl(
                 if(DevelopmentConfiguration.IS_DEVELOPMENT)
-                    "http://localhost:20201/"
+                    "http://localhost:20301/"
                 else
-                    "https://minecraft.goldenmine.kr:20201/"
+                    "http://minecraft.goldenmine.kr:20301/"
             )
             .addConverterFactory(GsonConverterFactory.create())
             .build()

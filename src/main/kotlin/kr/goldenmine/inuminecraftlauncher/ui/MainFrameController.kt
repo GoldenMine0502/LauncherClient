@@ -4,19 +4,24 @@ import com.google.common.reflect.TypeToken
 import com.google.gson.Gson
 import kr.goldenmine.inuminecraftlauncher.DevelopmentConfiguration
 import kr.goldenmine.inuminecraftlauncher.LauncherSettings
+import kr.goldenmine.inuminecraftlauncher.download.ServerRequest
 import kr.goldenmine.inuminecraftlauncher.launcher.MinecraftCommandBuilder
 import kr.goldenmine.inuminecraftlauncher.launcher.MinecraftDataDownloader
 import kr.goldenmine.inuminecraftlauncher.launcher.MinecraftDownloader
 import kr.goldenmine.inuminecraftlauncher.launcher.MinecraftLauncher
 import kr.goldenmine.inuminecraftlauncher.launcher.models.MinecraftAccount
 import kr.goldenmine.inuminecraftlauncher.server.LauncherServerService
+import kr.goldenmine.inuminecraftlauncher.server.models.ServerStatusResponse
 import kr.goldenmine.inuminecraftlauncher.util.MoveToTheBottom
 import net.technicpack.minecraftcore.microsoft.auth.MicrosoftUser
 import net.technicpack.utilslib.DesktopUtils
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
+import retrofit2.Call
+import retrofit2.Response
 import java.io.*
 import java.util.concurrent.ExecutionException
+import javax.security.auth.callback.Callback
 
 class MainFrameController(
     private val launcherSettings: LauncherSettings,
@@ -38,6 +43,7 @@ class MainFrameController(
         registerAllEvents()
 
         addLog("development: ${DevelopmentConfiguration.IS_DEVELOPMENT}" )
+        printGuestStatus()
     }
 
     private fun loadClientInfo() {
@@ -68,7 +74,9 @@ class MainFrameController(
     }
 
     fun addLog(text: String?) {
-        mainFrame.logArea.append("$text\n")
+        synchronized(this) {
+            mainFrame.logArea.append("$text\n")
+        }
     }
 
     fun logout() {
@@ -90,19 +98,44 @@ class MainFrameController(
         throw RuntimeException("microsoft login failed")
     }
 
+    fun printGuestStatus() {
+//        val status = LauncherServerService.LAUNCHER_SERVER.requestStatus().execute().body()
+//        log.info(status.toString())
+//        if(status != null)
+//            addLog("available guests: ${status.availableCounts} / ${status.totalCounts}")
+        LauncherServerService.LAUNCHER_SERVER.requestStatus().enqueue(object : retrofit2.Callback<ServerStatusResponse> {
+            override fun onResponse(call: Call<ServerStatusResponse>, response: Response<ServerStatusResponse>) {
+                val status = response.body()
+                log.info(status.toString())
+                if(status != null)
+                    addLog("available guests: ${status.availableCounts} / ${status.totalCounts}")
+            }
+
+            override fun onFailure(call: Call<ServerStatusResponse>, t: Throwable) {
+                addLog("failed to connect to server")
+            }
+        })
+    }
+
     private fun tryGuestLogin() {
         disableLoginButton()
         addLog("pressed guest login")
-        Thread {
-            val minecraftAccount = LauncherServerService.LAUNCHER_SERVER.requestRandomAccount().execute().body()
-            if(minecraftAccount != null) {
-                addLog("username: ${minecraftAccount.userName}")
-                launchMinecraft(minecraftAccount)
-            } else {
+        printGuestStatus()
+        LauncherServerService.LAUNCHER_SERVER.requestRandomAccount().enqueue(object : retrofit2.Callback<MinecraftAccount> {
+            override fun onResponse(call: Call<MinecraftAccount>, response: Response<MinecraftAccount>) {
+                val minecraftAccount = response.body()
+                if(minecraftAccount != null) {
+                    addLog("username: ${minecraftAccount.userName}")
+                    launchMinecraft(minecraftAccount)
+                } else {
+                    addLog("failed to get token.")
+                }
+            }
+
+            override fun onFailure(call: Call<MinecraftAccount>, t: Throwable) {
                 addLog("failed to get token.")
             }
-            enableLoginButton()
-        }.start()
+        })
     }
 
     private fun tryMicrosoftLogin() {
