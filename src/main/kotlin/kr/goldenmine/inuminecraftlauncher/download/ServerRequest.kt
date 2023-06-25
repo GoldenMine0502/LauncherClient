@@ -11,7 +11,7 @@ object ServerRequest {
 //        .baseUrl("http://minecraft.goldenmine.kr:20200/")
         .baseUrl(
             if(DevelopmentConfiguration.IS_DEVELOPMENT)
-                "http://localhost:20201/"
+                "http://localhost:20301/"
             else
                 "http://minecraft.goldenmine.kr:20301/"
         )

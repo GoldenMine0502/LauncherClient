@@ -74,7 +74,9 @@ class MainFrameController(
     }
 
     fun addLog(text: String?) {
-        mainFrame.logArea.append("$text\n")
+        synchronized(this) {
+            mainFrame.logArea.append("$text\n")
+        }
     }
 
     fun logout() {
@@ -97,15 +99,20 @@ class MainFrameController(
     }
 
     fun printGuestStatus() {
+//        val status = LauncherServerService.LAUNCHER_SERVER.requestStatus().execute().body()
+//        log.info(status.toString())
+//        if(status != null)
+//            addLog("available guests: ${status.availableCounts} / ${status.totalCounts}")
         LauncherServerService.LAUNCHER_SERVER.requestStatus().enqueue(object : retrofit2.Callback<ServerStatusResponse> {
             override fun onResponse(call: Call<ServerStatusResponse>, response: Response<ServerStatusResponse>) {
                 val status = response.body()
+                log.info(status.toString())
                 if(status != null)
                     addLog("available guests: ${status.availableCounts} / ${status.totalCounts}")
             }
 
             override fun onFailure(call: Call<ServerStatusResponse>, t: Throwable) {
-
+                addLog("failed to connect to server")
             }
         })
     }

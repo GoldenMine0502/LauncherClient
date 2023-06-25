@@ -16,7 +16,7 @@ class LauncherServerService {
         val LAUNCHER_SERVER: LauncherServerApi = Retrofit.Builder()
             .baseUrl(
                 if(DevelopmentConfiguration.IS_DEVELOPMENT)
-                    "http://localhost:20201/"
+                    "http://localhost:20301/"
                 else
                     "http://minecraft.goldenmine.kr:20301/"
             )

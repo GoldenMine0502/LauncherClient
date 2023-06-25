@@ -1,16 +1,10 @@
-package kr.goldenmine.inuminecraftlauncher.server.models;
+package kr.goldenmine.inuminecraftlauncher.server.models
 
-import com.google.gson.annotations.SerializedName;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
+import com.google.gson.annotations.SerializedName
 
-@Getter
-@AllArgsConstructor
-public class ServerStatusResponse {
+data class ServerStatusResponse(
+    val availableCounts: Int,
+    val totalCounts: Int
+){
 
-    @SerializedName("available_counts")
-    int availableCounts;
-
-    @SerializedName("total_counts")
-    int totalCounts;
 }
