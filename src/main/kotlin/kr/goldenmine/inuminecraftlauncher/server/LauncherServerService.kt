@@ -18,7 +18,7 @@ class LauncherServerService {
                 if(DevelopmentConfiguration.IS_DEVELOPMENT)
                     "http://localhost:20201/"
                 else
-                    "https://minecraft.goldenmine.kr:20201/"
+                    "http://minecraft.goldenmine.kr:20301/"
             )
             .addConverterFactory(GsonConverterFactory.create())
             .build()

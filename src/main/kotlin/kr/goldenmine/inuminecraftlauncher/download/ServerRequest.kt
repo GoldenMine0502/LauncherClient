@@ -1,5 +1,6 @@
 package kr.goldenmine.inuminecraftlauncher.download
 
+import kr.goldenmine.inuminecraftlauncher.DevelopmentConfiguration
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import retrofit2.converter.scalars.ScalarsConverterFactory
@@ -7,7 +8,13 @@ import retrofit2.converter.scalars.ScalarsConverterFactory
 
 object ServerRequest {
     val SERVICE: ServerService = Retrofit.Builder()
-        .baseUrl("http://minecraft.goldenmine.kr:20200/")
+//        .baseUrl("http://minecraft.goldenmine.kr:20200/")
+        .baseUrl(
+            if(DevelopmentConfiguration.IS_DEVELOPMENT)
+                "http://localhost:20201/"
+            else
+                "http://minecraft.goldenmine.kr:20301/"
+        )
         .addConverterFactory(GsonConverterFactory.create())
         .addConverterFactory(ScalarsConverterFactory.create())
         .build()
