@@ -129,11 +129,13 @@ class MainFrameController(
                     launchMinecraft(minecraftAccount)
                 } else {
                     addLog("failed to get token.")
+                    enableLoginButton()
                 }
             }
 
             override fun onFailure(call: Call<MinecraftAccount>, t: Throwable) {
                 addLog("failed to get token.")
+                enableLoginButton()
             }
         })
     }
