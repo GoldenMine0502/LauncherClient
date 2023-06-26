@@ -189,6 +189,7 @@ class MainFrameController(
         addLog("launching minecraft...")
         val code = launcher.launchMinecraft()
         addLog("process finished with exit code $code")
+        enableLoginButton()
     }
 
     fun disableLoginButton() {
