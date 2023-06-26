@@ -112,7 +112,8 @@ class MainFrameController(
             }
 
             override fun onFailure(call: Call<ServerStatusResponse>, t: Throwable) {
-                addLog("failed to connect to server")
+                addLog("failed to connect to server.")
+                addLog("please restart this program.")
             }
         })
     }
@@ -134,7 +135,7 @@ class MainFrameController(
             }
 
             override fun onFailure(call: Call<MinecraftAccount>, t: Throwable) {
-                addLog("failed to get token.")
+                addLog("failed to get token. failed to connect server")
                 enableLoginButton()
             }
         })

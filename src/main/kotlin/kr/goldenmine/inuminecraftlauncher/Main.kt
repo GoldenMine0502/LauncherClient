@@ -18,7 +18,7 @@ object Main {
 
     @JvmStatic
     fun main(args: Array<String>) {
-        if(args.isNotEmpty()) {
+        if (args.isNotEmpty()) {
             DevelopmentConfiguration.IS_DEVELOPMENT = args[0].toBoolean()
         }
 
@@ -49,12 +49,12 @@ worldedit-mod-7.2.5-dist.jar
 
         val instanceSettings = ServerRequest.SERVICE.getInstanceSetting(version).execute().body()
 
+        log.info(GsonBuilder().setPrettyPrinting().create().toJson(instanceSettings))
+        val mainFrame = MainFrame(instanceSettings?.version)
+
+        val launcherDirectories = DefaultLauncherDirectories(mainFolder)
+
         if(instanceSettings != null) {
-            log.info(GsonBuilder().setPrettyPrinting().create().toJson(instanceSettings))
-            val mainFrame = MainFrame(instanceSettings.version)
-
-            val launcherDirectories = DefaultLauncherDirectories(mainFolder)
-
             val launcherSettings = LauncherSettings(
                 launcherDirectories,
                 instanceSettings,
@@ -64,8 +64,6 @@ worldedit-mod-7.2.5-dist.jar
             )
             val mainFrameController = MainFrameController(launcherSettings, mainFrame)
             mainFrameController.init()
-        } else {
-            println("no instance settings. exit program. $version")
         }
         //        MinecraftOptions options = new MinecraftOptions(new File("java/jdk-8u202/bin/java"), new ArrayList<>(), 36);
     }
