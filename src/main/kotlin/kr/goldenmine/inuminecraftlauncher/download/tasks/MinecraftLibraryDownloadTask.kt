@@ -1,5 +1,6 @@
 package kr.goldenmine.inuminecraftlauncher.download.tasks
 
+import kr.goldenmine.inuminecraftlauncher.LauncherSettings
 import kr.goldenmine.inuminecraftlauncher.assets.AssetService
 import kr.goldenmine.inuminecraftlauncher.assets.version.libraries.Artifact
 import kr.goldenmine.inuminecraftlauncher.launcher.LauncherDirectories
@@ -10,7 +11,7 @@ import org.slf4j.LoggerFactory
 import java.io.File
 
 class MinecraftLibraryDownloadTask(
-    private val launcherDirectories: LauncherDirectories,
+    private val launcherSettings: LauncherSettings,
     private val artifact: Artifact,
     private val classifier: Boolean = false
 ): ITask<Boolean> {
@@ -18,7 +19,7 @@ class MinecraftLibraryDownloadTask(
     private val log: Logger = LoggerFactory.getLogger(MinecraftLibraryDownloadTask::class.java)
 
     override fun download(): Boolean {
-        val directory = if(classifier) launcherDirectories.temporaryDirectory else launcherDirectories.librariesDirectory
+        val directory = if(classifier) launcherSettings.launcherDirectories.temporaryDirectory else launcherSettings.launcherDirectories.librariesDirectory
         
         val file = File(directory, artifact.path)
         file.parentFile.mkdirs()
@@ -28,6 +29,7 @@ class MinecraftLibraryDownloadTask(
             return true
         }
 
+        launcherSettings.logToGUI("downloading library ${artifact.path}...")
         val execute = AssetService.MINECRAFT_API.downloadFromUrl(artifact.url).execute()
         val body = execute.body()
 

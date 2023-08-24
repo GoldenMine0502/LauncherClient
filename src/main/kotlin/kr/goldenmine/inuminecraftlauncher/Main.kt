@@ -4,6 +4,7 @@ import com.google.gson.GsonBuilder
 import io.github.bonigarcia.wdm.WebDriverManager
 import kr.goldenmine.inuminecraftlauncher.download.ServerRequest
 import kr.goldenmine.inuminecraftlauncher.launcher.DefaultLauncherDirectories
+import kr.goldenmine.inuminecraftlauncher.ui.DefaultLoggerGUI
 import kr.goldenmine.inuminecraftlauncher.ui.MainFrame
 import kr.goldenmine.inuminecraftlauncher.ui.MainFrameController
 import org.slf4j.Logger
@@ -47,7 +48,11 @@ worldedit-mod-7.2.5-dist.jar
         val versionFile = File(mainFolder, "version.txt")
         val version = versionFile.readText()
 
-        val instanceSettings = ServerRequest.SERVICE.getInstanceSetting(version).execute().body()
+        val instanceSettings = try {
+            ServerRequest.SERVICE.getInstanceSetting(version).execute().body()
+        } catch(ex: Exception) {
+            null
+        }
 
         log.info(GsonBuilder().setPrettyPrinting().create().toJson(instanceSettings))
         val mainFrame = MainFrame(instanceSettings?.version)
@@ -55,15 +60,19 @@ worldedit-mod-7.2.5-dist.jar
         val launcherDirectories = DefaultLauncherDirectories(mainFolder)
 
         if(instanceSettings != null) {
+            val loggerGUI = DefaultLoggerGUI(mainFrame)
             val launcherSettings = LauncherSettings(
                 launcherDirectories,
                 instanceSettings,
                 width = 854,
                 height = 480,
+                loggerGUI = loggerGUI
 //            overrideJavaPath = "/Library/Java/JavaVirtualMachines/jdk1.8.0_202.jdk/Contents/Home/bin/java"
             )
             val mainFrameController = MainFrameController(launcherSettings, mainFrame)
             mainFrameController.init()
+        } else {
+            mainFrame.logArea.append("failed to connect server.\nplease restart this program.")
         }
         //        MinecraftOptions options = new MinecraftOptions(new File("java/jdk-8u202/bin/java"), new ArrayList<>(), 36);
     }

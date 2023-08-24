@@ -17,6 +17,7 @@ class MinecraftDataDownloader(
 
     fun downloadJava() {
         try {
+//            launcherSettings.logToGUI("downloading java...")
             log.info("downloading java...")
 
             val javaFileName = launcherSettings.instanceSettings.javaVersionSpecific[OS_NAME]
@@ -162,6 +163,7 @@ class MinecraftDataDownloader(
 
 
         if (!file.exists() || (checkMD5 && getFileMD5(file) != md5Server)) {
+            launcherSettings.logToGUI("downloading $type $fileName...")
             log.info("server: $md5Server client: ${if(file.exists()) getFileMD5(file) else null}")
 
             val response = request.invoke(fileName).execute()

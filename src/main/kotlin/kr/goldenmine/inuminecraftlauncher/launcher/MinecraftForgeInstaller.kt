@@ -319,6 +319,7 @@ class MinecraftForgeInstaller(
     }
 
     fun install() {
+//        launcherSettings.logToGUI("installing forge...")
         installForge()
         copyUniversalFromExtractedJar()
     }
