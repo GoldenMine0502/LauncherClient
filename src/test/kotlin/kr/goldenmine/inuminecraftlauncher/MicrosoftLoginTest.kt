@@ -31,13 +31,14 @@ class MicrosoftLoginTest {
             "test"
         )
 
-        val launcherSettings = LauncherSettings(
-            launcherDirectories,
-            instanceSettings,
-            width = 854,
-            height = 480,
-//            overrideJavaPath = "/Library/Java/JavaVirtualMachines/jdk1.8.0_202.jdk/Contents/Home/bin/java"
-        )
+//        val launcherSettings = LauncherSettings(
+//            launcherDirectories,
+//            instanceSettings,
+//            width = 854,
+//            height = 480,
+////            overrideJavaPath = "/Library/Java/JavaVirtualMachines/jdk1.8.0_202.jdk/Contents/Home/bin/java"
+//            loggerGUI = DefaultLoggerGUI()
+//        )
 
 //        launcherSettings.userAdministrator.microsoftAuthenticator.loginNewUser()
     }

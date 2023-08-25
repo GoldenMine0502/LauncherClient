@@ -44,13 +44,13 @@ class MinecraftAssetDownloadTest {
         "test"
     )
     private val minecraftAccount = MinecraftAccount("test", "test", "test", "test")
-    private val launcherSettings = LauncherSettings(
-        temporaryDirectory,
-        instanceSettings,
-        width = 854,
-        height = 480,
-//        overrideJavaPath = "/Library/Java/JavaVirtualMachines/jdk1.8.0_202.jdk/Contents/Home/bin/java",
-    )
+//    private val launcherSettings = LauncherSettings(
+//        temporaryDirectory,
+//        instanceSettings,
+//        width = 854,
+//        height = 480,
+////        overrideJavaPath = "/Library/Java/JavaVirtualMachines/jdk1.8.0_202.jdk/Contents/Home/bin/java",
+//    )
 
 //    @Test
 //    fun testAll() {

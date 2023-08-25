@@ -1,5 +1,6 @@
 package kr.goldenmine.inuminecraftlauncher.download.tasks
 
+import kr.goldenmine.inuminecraftlauncher.LauncherSettings
 import kr.goldenmine.inuminecraftlauncher.assets.AssetService
 import kr.goldenmine.inuminecraftlauncher.launcher.LauncherDirectories
 import kr.goldenmine.inuminecraftlauncher.util.writeResponseBodyToDisk
@@ -8,7 +9,7 @@ import org.slf4j.LoggerFactory
 import java.io.File
 
 class MinecraftForgeDownloadTask(
-    private val launcherDirectories: LauncherDirectories,
+    private val launcherSettings: LauncherSettings,
     private val id: String,
     private val version: String = "best"
 ) : ITask<Boolean> {
@@ -27,6 +28,7 @@ class MinecraftForgeDownloadTask(
                         versions.firstOrNull { it == version || it == "$id-$version" }
 
 //                println(repository)
+                launcherSettings.logToGUI("downloading forge $version...")
                 log.info("downloading version $version")
 
                 if (version != null) {
@@ -36,7 +38,7 @@ class MinecraftForgeDownloadTask(
                     val body = AssetService.FORGE_API.downloadFromUrl(url).execute().body()
 
                     if (body != null) {
-                        val file = File(launcherDirectories.forgeDirectory, fileName)
+                        val file = File(launcherSettings.launcherDirectories.forgeDirectory, fileName)
                         writeResponseBodyToDisk(file, body)
                         return true
                     }

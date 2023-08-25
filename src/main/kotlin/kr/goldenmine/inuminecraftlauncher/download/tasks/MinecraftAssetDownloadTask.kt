@@ -1,5 +1,6 @@
 package kr.goldenmine.inuminecraftlauncher.download.tasks
 
+import kr.goldenmine.inuminecraftlauncher.LauncherSettings
 import kr.goldenmine.inuminecraftlauncher.assets.AssetService
 import kr.goldenmine.inuminecraftlauncher.assets.assets.MinecraftAsset
 import kr.goldenmine.inuminecraftlauncher.launcher.LauncherDirectories
@@ -10,7 +11,7 @@ import org.slf4j.LoggerFactory
 import java.io.File
 
 class MinecraftAssetDownloadTask(
-    private val launcherDirectories: LauncherDirectories,
+    private val launcherSettings: LauncherSettings,
     private val fileName: String,
     private val asset: MinecraftAsset
 ) : ITask<Boolean> {
@@ -19,7 +20,7 @@ class MinecraftAssetDownloadTask(
 
     // if a download is success or already exist, return true
     override fun download(): Boolean {
-        val file = File(launcherDirectories.assetsDirectory, "objects/${asset.hash.substring(0, 2)}/${asset.hash}")
+        val file = File(launcherSettings.launcherDirectories.assetsDirectory, "objects/${asset.hash.substring(0, 2)}/${asset.hash}")
         file.parentFile.mkdirs()
 
         if (checkHash(file)) {
@@ -28,6 +29,8 @@ class MinecraftAssetDownloadTask(
         }
 
         val url = "https://resources.download.minecraft.net/${asset.hash.substring(0, 2)}/${asset.hash}"
+
+        launcherSettings.logToGUI("downloading asset ${asset.hash}...")
 
         val response = AssetService.MINECRAFT_API.downloadFromUrl(url).execute()
         if (response.isSuccessful) {

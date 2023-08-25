@@ -2,9 +2,7 @@ package kr.goldenmine.inuminecraftlauncher.ui
 
 import com.google.common.reflect.TypeToken
 import com.google.gson.Gson
-import kr.goldenmine.inuminecraftlauncher.DevelopmentConfiguration
 import kr.goldenmine.inuminecraftlauncher.LauncherSettings
-import kr.goldenmine.inuminecraftlauncher.download.ServerRequest
 import kr.goldenmine.inuminecraftlauncher.launcher.MinecraftCommandBuilder
 import kr.goldenmine.inuminecraftlauncher.launcher.MinecraftDataDownloader
 import kr.goldenmine.inuminecraftlauncher.launcher.MinecraftDownloader
@@ -21,7 +19,6 @@ import retrofit2.Call
 import retrofit2.Response
 import java.io.*
 import java.util.concurrent.ExecutionException
-import javax.security.auth.callback.Callback
 
 class MainFrameController(
     private val launcherSettings: LauncherSettings,
@@ -34,15 +31,14 @@ class MainFrameController(
 
     fun init() {
         MoveToTheBottom.install(mainFrame.logArea)
-        addLog("Developer: GoldenMine (https://github.com/GoldenMine0502)")
-        addLog("Special Thanks To: RanolP (https://github.com/RanolP)")
 
         mainFrame.isVisible = true
+
         loadClientInfo()
         updateProfile()
         registerAllEvents()
 
-        addLog("development: ${DevelopmentConfiguration.IS_DEVELOPMENT}" )
+//        addLog("디버그: ${DevelopmentConfiguration.IS_DEVELOPMENT}" )
         printGuestStatus()
     }
 
@@ -59,24 +55,21 @@ class MainFrameController(
         if(userName != null) {
             val microsoftUser = launcherSettings.userAdministrator.users.getUser(userName)
             mainFrame.profileInfo.text = "계정: ${microsoftUser.username}, ${microsoftUser.id}"
-            addLog("updated profile: ${microsoftUser.username}, ${microsoftUser.id}")
+            addLog("프로필: ${microsoftUser.username}, ${microsoftUser.id}")
         } else {
             mainFrame.profileInfo.text = "계정: "
-            addLog("updated profile: null")
+            addLog("프로필: null")
         }
     }
 
     private fun registerAllEvents() {
         mainFrame.loginMicrosoft.addActionListener { tryMicrosoftLogin() }
         mainFrame.loginGuest.addActionListener { tryGuestLogin() }
-
         mainFrame.logoutMicrosoft.addActionListener { logout() }
     }
 
     fun addLog(text: String?) {
-        synchronized(this) {
-            mainFrame.logArea.append("$text\n")
-        }
+        launcherSettings.logToGUI(text)
     }
 
     fun logout() {
@@ -107,19 +100,22 @@ class MainFrameController(
             override fun onResponse(call: Call<ServerStatusResponse>, response: Response<ServerStatusResponse>) {
                 val status = response.body()
                 log.info(status.toString())
-                if(status != null)
-                    addLog("available guests: ${status.availableCounts} / ${status.totalCounts}")
+                if(status != null) {
+                    addLog("이용 가능한 게스트: ${status.availableCounts} / ${status.totalCounts}")
+                }
             }
 
             override fun onFailure(call: Call<ServerStatusResponse>, t: Throwable) {
-                addLog("failed to connect to server")
+                addLog("failed to connect to server.")
+                addLog("서버에 연결할 수 없습니다.")
+                addLog("연결에 실패했습니다. 관리자에게 문의해주세요.")
             }
         })
     }
 
     private fun tryGuestLogin() {
         disableLoginButton()
-        addLog("pressed guest login")
+//        addLog("pressed guest login")
         printGuestStatus()
         LauncherServerService.LAUNCHER_SERVER.requestRandomAccount().enqueue(object : retrofit2.Callback<MinecraftAccount> {
             override fun onResponse(call: Call<MinecraftAccount>, response: Response<MinecraftAccount>) {
@@ -129,18 +125,24 @@ class MainFrameController(
                     launchMinecraft(minecraftAccount)
                 } else {
                     addLog("failed to get token.")
+                    addLog("이미 모든 게스트가 사용 중이거나, ")
+                    addLog("최근에 게스트를 사용하였습니다.")
+                    enableLoginButton()
                 }
             }
 
             override fun onFailure(call: Call<MinecraftAccount>, t: Throwable) {
-                addLog("failed to get token.")
+                addLog("failed to get token. failed to connect server")
+                addLog("서버에 연결할 수 없습니다.")
+                addLog("연결에 실패했습니다. 관리자에게 문의해주세요.")
+                enableLoginButton()
             }
         })
     }
 
     private fun tryMicrosoftLogin() {
         disableLoginButton()
-        addLog("pressed microsoft login")
+//        addLog("pressed microsoft login")
         Thread {
             try {
                 val microsoftUser = loginRepeat(launcherSettings.userAdministrator.users.users.firstOrNull(), 5)
@@ -187,6 +189,7 @@ class MainFrameController(
         addLog("launching minecraft...")
         val code = launcher.launchMinecraft()
         addLog("process finished with exit code $code")
+        enableLoginButton()
     }
 
     fun disableLoginButton() {

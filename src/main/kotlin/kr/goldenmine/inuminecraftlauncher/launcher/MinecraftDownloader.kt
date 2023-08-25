@@ -94,7 +94,7 @@ class MinecraftDownloader(
             log.info("downloading ${it.key}")
 
             val assetDownloadTask =
-                MinecraftAssetDownloadTask(launcherSettings.launcherDirectories, it.key, it.value)
+                MinecraftAssetDownloadTask(launcherSettings, it.key, it.value)
 
             while (!assetDownloadTask.download()) {
                 log.info("retrying ${it.key}")
@@ -108,7 +108,7 @@ class MinecraftDownloader(
         if (versionManifest != null) {
             val minecraftVersion =
                 MinecraftJsonDownloadTask(
-                    launcherSettings.launcherDirectories,
+                    launcherSettings,
                     versionManifest.versions.first { it.id == launcherSettings.instanceSettings.minecraftVersion }
                 ).download()
 
@@ -121,7 +121,7 @@ class MinecraftDownloader(
 
                 val minecraftPackage =
                     MinecraftPackageDownloadTask(
-                        launcherSettings.launcherDirectories,
+                        launcherSettings,
                         minecraftVersion.assetIndex
                     ).download()
 
@@ -136,7 +136,7 @@ class MinecraftDownloader(
         // TODO 해시 체크
         if (!forgeFile.exists()) {
             val forgeDownloadTask = MinecraftForgeDownloadTask(
-                launcherSettings.launcherDirectories,
+                launcherSettings,
                 launcherSettings.instanceSettings.minecraftVersion,
                 launcherSettings.instanceSettings.forgeVersion
             )
@@ -184,7 +184,7 @@ class MinecraftDownloader(
             if (library.downloads.artifact.url.isNotEmpty()) { // 기본 포지는 url이 비어 있음
                 var count = 0
                 while (!MinecraftLibraryDownloadTask(
-                        launcherSettings.launcherDirectories,
+                        launcherSettings,
                         library.downloads.artifact
                     ).download()
                 ) {
@@ -196,7 +196,7 @@ class MinecraftDownloader(
                 count = 0
                 library.downloads.classifiers?.forEach { (_, u) ->
                     while (!MinecraftLibraryDownloadTask(
-                            launcherSettings.launcherDirectories,
+                            launcherSettings,
                             u,
                             classifier = true
                         ).download()
@@ -226,7 +226,7 @@ class MinecraftDownloader(
 
     fun downloadForge() {
         val javaPath = launcherSettings.javaRepository.primary?.absolutePath
-            ?: throw MinecraftException("no java found. stopping downloading forge")
+            ?: throw MinecraftException("no java found. stop downloading forge")
 
         val forgeFile =
             File(launcherSettings.launcherDirectories.forgeDirectory, launcherSettings.instanceSettings.getForgeFileName())
