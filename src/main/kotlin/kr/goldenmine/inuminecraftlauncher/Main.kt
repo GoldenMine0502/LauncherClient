@@ -19,7 +19,9 @@ object Main {
     @JvmStatic
     fun main(args: Array<String>) {
         if (args.isNotEmpty()) {
-            DevelopmentConfiguration.IS_DEVELOPMENT = args[0].toBoolean()
+            DevelopmentConfiguration.IS_DEVELOPMENT_SERVER = args[0].toBoolean()
+            if(args.size >= 2)
+                DevelopmentConfiguration.IS_DEVELOPMENT_LOGGER = args[1].toBoolean()
         }
 
 //        WebDriverManager.chromedriver().setup()
@@ -75,7 +77,7 @@ worldedit-mod-7.2.5-dist.jar
             launcherSettings.logToGUI("디스코드 입장을 권장합니다: https://discord.gg/4MXcmE67UU")
             launcherSettings.logToGUI("==================================")
             launcherSettings.logToGUI("")
-            launcherSettings.logToGUI("실행시 프로그램 설치 경로에 한글이 포함되면 안됩니다.")
+            launcherSettings.logToGUI("실행시 프로그램 설치 경로에 영어만 있어야 합니다.")
 
             val mainFrameController = MainFrameController(launcherSettings, mainFrame)
             mainFrameController.init()

@@ -10,7 +10,7 @@ object ServerRequest {
     val SERVICE: ServerService = Retrofit.Builder()
 //        .baseUrl("http://minecraft.goldenmine.kr:20200/")
         .baseUrl(
-            if(DevelopmentConfiguration.IS_DEVELOPMENT)
+            if(DevelopmentConfiguration.IS_DEVELOPMENT_SERVER)
                 "http://localhost:20301/"
             else
                 "http://minecraft.goldenmine.kr:20301/"

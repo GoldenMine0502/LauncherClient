@@ -1,6 +1,7 @@
 package kr.goldenmine.inuminecraftlauncher.launcher
 
 import com.google.gson.GsonBuilder
+import kr.goldenmine.inuminecraftlauncher.DevelopmentConfiguration
 import kr.goldenmine.inuminecraftlauncher.LauncherSettings
 import kr.goldenmine.inuminecraftlauncher.assets.MinecraftForgeVersion
 import kr.goldenmine.inuminecraftlauncher.assets.MinecraftVersion
@@ -145,8 +146,10 @@ class MinecraftCommandBuilder(
         val invalid2 = "-Dfml.ignorePatchDiscrepancies=true"
         concatenator.appendString(invalid2)
 
-//        val log4j = "-Dlog4j.configurationFile=\${log_configuration}"
-//        appendString(log4j)
+        if(!DevelopmentConfiguration.IS_DEVELOPMENT_LOGGER) {
+            val log4j = "-Dlog4j.configurationFile=\${log_configuration}"
+            concatenator.appendString(log4j)
+        }
 
         if (OperatingSystem.getOperatingSystem() == OperatingSystem.WINDOWS) {
             val heapDump = "-XX:HeapDumpPath=MojangTricksIntelDriversForPerformance_javaw.exe_minecraft.exe.heapdump"

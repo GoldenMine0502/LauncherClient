@@ -33,6 +33,7 @@ class MainFrameController(
         MoveToTheBottom.install(mainFrame.logArea)
 
         mainFrame.isVisible = true
+
         loadClientInfo()
         updateProfile()
         registerAllEvents()
@@ -64,7 +65,6 @@ class MainFrameController(
     private fun registerAllEvents() {
         mainFrame.loginMicrosoft.addActionListener { tryMicrosoftLogin() }
         mainFrame.loginGuest.addActionListener { tryGuestLogin() }
-
         mainFrame.logoutMicrosoft.addActionListener { logout() }
     }
 
@@ -115,7 +115,7 @@ class MainFrameController(
 
     private fun tryGuestLogin() {
         disableLoginButton()
-        addLog("pressed guest login")
+//        addLog("pressed guest login")
         printGuestStatus()
         LauncherServerService.LAUNCHER_SERVER.requestRandomAccount().enqueue(object : retrofit2.Callback<MinecraftAccount> {
             override fun onResponse(call: Call<MinecraftAccount>, response: Response<MinecraftAccount>) {
@@ -142,7 +142,7 @@ class MainFrameController(
 
     private fun tryMicrosoftLogin() {
         disableLoginButton()
-        addLog("pressed microsoft login")
+//        addLog("pressed microsoft login")
         Thread {
             try {
                 val microsoftUser = loginRepeat(launcherSettings.userAdministrator.users.users.firstOrNull(), 5)
