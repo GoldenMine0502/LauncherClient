@@ -32,11 +32,6 @@ class MainFrameController(
     fun init() {
         MoveToTheBottom.install(mainFrame.logArea)
 
-        addLog("")
-        addLog("==================================")
-        addLog("디스코드 입장을 권장합니다: https://discord.gg/4MXcmE67UU")
-        addLog("==================================")
-        addLog("")
         mainFrame.isVisible = true
         loadClientInfo()
         updateProfile()

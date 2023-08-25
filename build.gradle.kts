@@ -11,7 +11,7 @@ plugins {
 }
 
 group = "kr.goldenmine.inuminecraftlauncher.client"
-version = "1.2.0-SNAPSHOT"
+version = "1.2.1-SNAPSHOT"
 
 repositories {
     mavenCentral()
@@ -27,6 +27,13 @@ dependencies {
     implementation("org.springframework.boot:spring-boot-starter-parent:2.7.3")
     implementation(group="org.glassfish.jaxb", name="jaxb-runtime", version="2.3.2")
     implementation("org.springframework.boot:spring-boot-devtools")
+
+//    // https://mvnrepository.com/artifact/org.slf4j/slf4j-api
+//    implementation ("org.slf4j:slf4j-api:2.0.7")
+
+//    // https://mvnrepository.com/artifact/org.apache.commons/commons-compress
+//    implementation("org.apache.commons:commons-compress:1.23.0")
+
 
     annotationProcessor("org.projectlombok:lombok:1.18.24")
     implementation("org.projectlombok:lombok:1.18.24")
