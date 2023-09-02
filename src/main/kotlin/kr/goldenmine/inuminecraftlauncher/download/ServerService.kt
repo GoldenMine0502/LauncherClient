@@ -5,7 +5,6 @@ import okhttp3.ResponseBody
 import retrofit2.Call
 import retrofit2.http.GET
 import retrofit2.http.Path
-import retrofit2.http.Query
 
 interface ServerService {
     @GET("file/download/java/{os}/{fileName}")
@@ -37,6 +36,12 @@ interface ServerService {
 
     @GET("file/check/shaders/{shader}")
     fun checkShader(@Path("shader") shader: String): Call<MD5Response>
+
+    @GET("file/check/java/{os}/{filename}")
+    fun checkJava(
+        @Path("os") os: String,
+        @Path("filename") file: String
+    ): Call<MD5Response>
 
 //    @GET("file/check/{fileName}")
 //    fun checkFile(@Path("fileName") fileName: String): Call<String>

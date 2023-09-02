@@ -19,7 +19,7 @@ class LauncherSettings(
 //    val overrideJavaPath: String? = null,
 ) {
     val userAdministrator = UserAdministrator(launcherDirectories)
-    val javaRepository = JavaRepository(instanceSettings)
+    val javaRepository = JavaRepository(launcherDirectories, instanceSettings)
 
     fun logToGUI(text: String?) {
         loggerGUI.log(text)

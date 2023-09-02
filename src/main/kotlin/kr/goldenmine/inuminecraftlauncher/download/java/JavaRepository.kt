@@ -1,6 +1,8 @@
 package kr.goldenmine.inuminecraftlauncher.download.java
 
 import kr.goldenmine.inuminecraftlauncher.InstanceSettings
+import kr.goldenmine.inuminecraftlauncher.download.ServerRequest
+import kr.goldenmine.inuminecraftlauncher.launcher.LauncherDirectories
 import kr.goldenmine.inuminecraftlauncher.util.Compress
 import kr.goldenmine.inuminecraftlauncher.util.getFileMD5
 import net.technicpack.utilslib.OperatingSystem
@@ -9,6 +11,7 @@ import org.slf4j.LoggerFactory
 import java.io.File
 
 class JavaRepository(
+    launcherDirectories: LauncherDirectories,
     instanceSettings: InstanceSettings
 ) {
     private val log: Logger = LoggerFactory.getLogger(JavaRepository::class.java)
@@ -20,25 +23,25 @@ class JavaRepository(
 
     init {
         downloaders[OperatingSystem.OSX] = IJavaDownloaderMac()
-        downloaders[OperatingSystem.WINDOWS] = IJavaDownloaderWindows(instanceSettings)
+        downloaders[OperatingSystem.WINDOWS] = IJavaDownloaderWindows(launcherDirectories, instanceSettings)
 //        downloaders[OperatingSystem.WINDOWS] = I
 
         val downloader = downloaders[OperatingSystem.getOperatingSystem()]
 
         try {
-            checkMD5Java()
             downloadJava()
             unzipJava()
-        } catch(ex: Exception) {
+            setPrimaryDefault()
+        } catch (ex: Exception) {
             log.warn(ex.message, ex)
 
-            if(downloader != null) {
+            if (downloader != null) {
                 val javaList = downloader.findAllExistingJava()
                 val best = downloader.getJavaVersionName(instanceSettings.javaVersion)
 
                 val java = javaList.firstOrNull { it.name.contains(best) }
 
-                if(java != null) {
+                if (java != null) {
                     primary = File(java, downloader.javaRoute)
                     log.info("set java version to ${primary?.path}")
                 } else {
@@ -50,14 +53,18 @@ class JavaRepository(
         }
     }
 
-    fun checkMD5Java() {
+    fun checkMD5Java(): Boolean {
         val downloader = downloaders[OperatingSystem.getOperatingSystem()]
         if (downloader != null) {
-//            val md5 = ServerRequest.SERVICE.checkFile(downloader.requestFileName).execute().body()
+            val file = downloader.getFile()
+            val md5 = ServerRequest.SERVICE.checkJava(downloader.operatingSystem.getName(), downloader.getFile().name)
+                .execute().body()
 
-            if(downloader.destFile.exists()) {
-                val fileMd5 = getFileMD5(downloader.destFile)
-
+            if (file.exists()) {
+                val fileMd5 = getFileMD5(file)
+                if (md5?.md5 == fileMd5) {
+                    return true
+                }
                 // TODO download java automatically
 //                if (md5 == null) {
 //                    throw RuntimeException("the file doesn't exist on the server")
@@ -72,17 +79,21 @@ class JavaRepository(
         } else {
             throw RuntimeException("no downloader for current os")
         }
+        return false
     }
 
     fun downloadJava() {
         val downloader = downloaders[OperatingSystem.getOperatingSystem()]
         if (downloader != null) {
-            log.info("destFile exists: ${downloader.destFile.exists()}")
-
-            if (!downloader.destFile.exists()) {
+            var count = 0
+            while (!checkMD5Java()) {
                 log.info("downloading java...")
                 downloader.download()
                 log.info("downloaded java.")
+                count++
+                if(count >= 5) {
+                    throw RuntimeException("severaly failed to download java. ")
+                }
             }
         }
     }
@@ -90,13 +101,13 @@ class JavaRepository(
     fun unzipJava() {
         val downloader = downloaders[OperatingSystem.getOperatingSystem()]
         if (downloader != null) {
-            val file = downloader.destFile
-            val directory = downloader.destFile.parentFile
+            val file = downloader.getFile()
+            val directory = file.parentFile
 
             // unzip if the downloaded file doesn't unzipped
             val checkExists = directory.listFiles()?.filter { it.isDirectory }?.size ?: 0
 
-            if(checkExists == 0) {
+            if (checkExists == 0) {
                 println("unzipping")
                 val compress = Compress()
                 compress.unZip(file.path, directory.path)
@@ -107,8 +118,12 @@ class JavaRepository(
     fun setPrimaryDefault() {
         val downloader = downloaders[OperatingSystem.getOperatingSystem()]
         if (downloader != null) {
-            val extractedFolder = downloader.destFile.parentFile.listFiles()?.filter { it.isDirectory }?.first()!!
-            primary = File(extractedFolder, downloader.javaRoute)
+            val file = downloader.getFile()
+            if(!file.exists()) {
+                throw RuntimeException("java doesnt exist")
+            }
+            primary = downloader.getFile()
+            log.info("set java version to (default) ${primary?.path}")
         }
     }
 }

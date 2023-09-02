@@ -1,7 +1,5 @@
 package kr.goldenmine.inuminecraftlauncher.download.java
 
-import kr.goldenmine.inuminecraftlauncher.download.ServerRequest
-import kr.goldenmine.inuminecraftlauncher.util.writeResponseBodyToDisk
 import net.technicpack.utilslib.OperatingSystem
 import lombok.extern.slf4j.Slf4j
 import org.slf4j.Logger
@@ -13,15 +11,16 @@ import javax.naming.OperationNotSupportedException
 class IJavaDownloaderMac : IJavaDownloader {
     private val log: Logger = LoggerFactory.getLogger(IJavaDownloaderMac::class.java)
 
-    override val destFile: File
-        get() = File("mac/java.zip")
-    override val requestFileName: String
-        get() = "java_mac.zip"
     override val javaRoute: String
         get() = "Contents/Home/bin/java"
 
     override val operatingSystem: OperatingSystem
         get() = OperatingSystem.OSX
+
+    override fun getFile(): File {
+        throw OperationNotSupportedException("macos should use local java.")
+    }
+
 
     override fun download() {
         throw OperationNotSupportedException("macos should use local java.")
