@@ -51,7 +51,7 @@ class IJavaDownloaderMac : IJavaDownloader {
             if(folder.exists())folder.listFiles()?.filter { File(it, javaRoute).exists() } ?: listOf() else listOf()
         }
 
-        val defaultJava = File("usr/bin/java")
+        val defaultJava = File("/usr/bin/java")
         return if(defaultJava.exists()) javaList + defaultJava else javaList
     }
 
