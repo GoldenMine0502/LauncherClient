@@ -2,6 +2,7 @@ package kr.goldenmine.inuminecraftlauncher.download.java
 
 import kr.goldenmine.inuminecraftlauncher.InstanceSettings
 import kr.goldenmine.inuminecraftlauncher.download.ServerRequest
+import kr.goldenmine.inuminecraftlauncher.launcher.LauncherDirectories
 import kr.goldenmine.inuminecraftlauncher.util.OS_NAME_WINDOWS
 import kr.goldenmine.inuminecraftlauncher.util.writeResponseBodyToDisk
 import net.technicpack.utilslib.OperatingSystem
@@ -12,30 +13,36 @@ import java.io.File
 
 @Slf4j
 class IJavaDownloaderWindows(
+    private val launcherDirectories: LauncherDirectories,
     private val instanceSettings: InstanceSettings
 ) : IJavaDownloader {
     private val log: Logger = LoggerFactory.getLogger(IJavaDownloaderWindows::class.java)
 
-    override val destFile: File
-        get() = File("windows/java.zip")
-    override val requestFileName: String
-        get() = "java_windows.zip"
     override val javaRoute: String
         get() = "bin/java.exe"
 
     override val operatingSystem: OperatingSystem
-        get() = OperatingSystem.OSX
+        get() = OperatingSystem.WINDOWS
+
+    override fun getFile(): File {
+        val windowsFileName =
+            instanceSettings.javaVersionSpecific[OS_NAME_WINDOWS] ?: throw RuntimeException("no java for windows.")
+        val file = File(launcherDirectories.javaDirectory, "windows/$windowsFileName.zip")
+
+        return file
+    }
 
     override fun download() {
-        val windowsFileName = instanceSettings.javaVersionSpecific[OS_NAME_WINDOWS] ?: throw RuntimeException("no java for windows.")
-        val response = ServerRequest.SERVICE.downloadJava(OS_NAME_WINDOWS, windowsFileName).execute()
+        val file = getFile()
+
+        val response = ServerRequest.SERVICE.downloadJava(OS_NAME_WINDOWS, file.name).execute()
 
         if (response.isSuccessful) {
             val body = response.body()
             log.info("response is successful.")
 
             if (body != null) {
-                writeResponseBodyToDisk(destFile, body)
+                writeResponseBodyToDisk(file, body)
                 log.info("downloaded java for windows.")
             }
         }
@@ -50,17 +57,18 @@ class IJavaDownloaderWindows(
         val javaList = routes.flatMap { route ->
             val folder = File(route)
 
-            if (folder.exists()) folder.listFiles()?.filter { File(it, javaRoute).exists() } ?: listOf() else listOf()
+            val list = if (folder.exists()) folder.listFiles()?.filter { File(it, javaRoute).exists() } ?: listOf() else listOf()
+            list.map { File(it.absolutePath, javaRoute) }
         }
 
         return javaList
     }
 
-    override fun getJavaVersionName(version: Int): String {
-        if (version < 10) {
-            return "1.$version"
+    override fun getJavaVersionName(version: Int): List<String> {
+        if(version < 10) {
+            return listOf("1.$version", "-$version")
         } else {
-            return "$version"
+            return listOf("$version")
         }
     }
 }

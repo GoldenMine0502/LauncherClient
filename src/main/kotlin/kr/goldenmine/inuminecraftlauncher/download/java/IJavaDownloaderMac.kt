@@ -1,7 +1,5 @@
 package kr.goldenmine.inuminecraftlauncher.download.java
 
-import kr.goldenmine.inuminecraftlauncher.download.ServerRequest
-import kr.goldenmine.inuminecraftlauncher.util.writeResponseBodyToDisk
 import net.technicpack.utilslib.OperatingSystem
 import lombok.extern.slf4j.Slf4j
 import org.slf4j.Logger
@@ -13,15 +11,16 @@ import javax.naming.OperationNotSupportedException
 class IJavaDownloaderMac : IJavaDownloader {
     private val log: Logger = LoggerFactory.getLogger(IJavaDownloaderMac::class.java)
 
-    override val destFile: File
-        get() = File("mac/java.zip")
-    override val requestFileName: String
-        get() = "java_mac.zip"
     override val javaRoute: String
         get() = "Contents/Home/bin/java"
 
     override val operatingSystem: OperatingSystem
         get() = OperatingSystem.OSX
+
+    override fun getFile(): File {
+        throw OperationNotSupportedException("macos should use local java.")
+    }
+
 
     override fun download() {
         throw OperationNotSupportedException("macos should use local java.")
@@ -49,18 +48,19 @@ class IJavaDownloaderMac : IJavaDownloader {
         val javaList = routes.flatMap { route ->
             val folder = File(route)
 
-            if(folder.exists())folder.listFiles()?.filter { File(it, javaRoute).exists() } ?: listOf() else listOf()
+            val list = if(folder.exists())folder.listFiles()?.filter { File(it, javaRoute).exists() } ?: listOf() else listOf()
+            list.map { File(it.absolutePath, javaRoute) }
         }
 
-        val defaultJava = File("usr/bin/java")
+        val defaultJava = File("/usr/bin/java")
         return if(defaultJava.exists()) javaList + defaultJava else javaList
     }
 
-    override fun getJavaVersionName(version: Int): String {
+    override fun getJavaVersionName(version: Int): List<String> {
         if(version < 10) {
-            return "1.$version"
+            return listOf("1.$version", "-$version")
         } else {
-            return "$version"
+            return listOf("$version")
         }
     }
 }
