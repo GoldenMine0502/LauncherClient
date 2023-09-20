@@ -57,17 +57,18 @@ class IJavaDownloaderWindows(
         val javaList = routes.flatMap { route ->
             val folder = File(route)
 
-            if (folder.exists()) folder.listFiles()?.filter { File(it, javaRoute).exists() } ?: listOf() else listOf()
+            val list = if (folder.exists()) folder.listFiles()?.filter { File(it, javaRoute).exists() } ?: listOf() else listOf()
+            list.map { File(it.absolutePath, javaRoute) }
         }
 
         return javaList
     }
 
-    override fun getJavaVersionName(version: Int): String {
-        if (version < 10) {
-            return "1.$version"
+    override fun getJavaVersionName(version: Int): List<String> {
+        if(version < 10) {
+            return listOf("1.$version", "-$version")
         } else {
-            return "$version"
+            return listOf("$version")
         }
     }
 }

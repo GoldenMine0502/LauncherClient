@@ -37,18 +37,25 @@ class JavaRepository(
 
             if (downloader != null) {
                 val javaList = downloader.findAllExistingJava()
-                val best = downloader.getJavaVersionName(instanceSettings.javaVersion)
+                javaList.forEach {
+                    log.info(it.absolutePath)
+                }
+                val bestVersions = downloader.getJavaVersionName(instanceSettings.javaVersion)
 
-                val java = javaList.firstOrNull { it.name.contains(best) }
+                val java = javaList.firstOrNull { file->
+                    val c = bestVersions.count { version -> file.name.contains(version) }
+
+                    c > 0
+                }
 
                 if (java != null) {
-                    primary = File(java, downloader.javaRoute)
+                    primary = java
                     log.info("set java version to ${primary?.path}")
                 } else {
                     log.error("no java found.")
                 }
             } else {
-                log.error("unsupported operating system: ${OperatingSystem.getOperatingSystem().toString()}")
+                log.error("unsupported operating system: ${OperatingSystem.getOperatingSystem()}")
             }
         }
     }

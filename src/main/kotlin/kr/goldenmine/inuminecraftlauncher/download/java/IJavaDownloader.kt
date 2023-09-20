@@ -10,5 +10,5 @@ interface IJavaDownloader {
     fun getFile(): File
     fun download()
     fun findAllExistingJava(): List<File>
-    fun getJavaVersionName(version: Int): String
+    fun getJavaVersionName(version: Int): List<String>
 }
