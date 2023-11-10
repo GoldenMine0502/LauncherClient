@@ -1,18 +1,20 @@
 package kr.goldenmine.inuminecraftlauncher.download.java
 
+import kr.goldenmine.inuminecraftlauncher.InstanceSettings
+import kr.goldenmine.inuminecraftlauncher.util.runProcessAndGetAllText
 import net.technicpack.utilslib.OperatingSystem
 import lombok.extern.slf4j.Slf4j
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import java.io.File
+import java.util.regex.Pattern
 import javax.naming.OperationNotSupportedException
 
 @Slf4j
-class IJavaDownloaderMac : IJavaDownloader {
+class IJavaDownloaderMac(
+    private val instanceSettings: InstanceSettings
+) : IJavaDownloader {
     private val log: Logger = LoggerFactory.getLogger(IJavaDownloaderMac::class.java)
-
-    override val javaRoute: String
-        get() = "Contents/Home/bin/java"
 
     override val operatingSystem: OperatingSystem
         get() = OperatingSystem.OSX
@@ -38,6 +40,7 @@ class IJavaDownloaderMac : IJavaDownloader {
     }
 
     override fun findAllExistingJava(): List<File> {
+        // 확인했던 경로들. 다른 경로들도 있을 수 있음
         val routes = listOf(
             "/Library/Java/JavaVirtualMachines/",
             "/System/Library/Java/JavaVirtualMachines/",
@@ -45,22 +48,39 @@ class IJavaDownloaderMac : IJavaDownloader {
             "/usr/libexec/java_home",
         )
 
+        val javaRoute = "Contents/Home/bin/java"
+
         val javaList = routes.flatMap { route ->
             val folder = File(route)
 
             val list = if(folder.exists())folder.listFiles()?.filter { File(it, javaRoute).exists() } ?: listOf() else listOf()
             list.map { File(it.absolutePath, javaRoute) }
-        }
+        }.toMutableList()
 
         val defaultJava = File("/usr/bin/java")
-        return if(defaultJava.exists()) javaList + defaultJava else javaList
+        javaList.add(defaultJava)
+
+        return javaList.filter {
+            checkVersionSame(it)
+        }
     }
 
-    override fun getJavaVersionName(version: Int): List<String> {
-        if(version < 10) {
-            return listOf("1.$version", "-$version")
-        } else {
-            return listOf("$version")
+    private val versionSplitPattern = Pattern.compile("[\\._]")
+
+    fun checkVersionSame(javaPath: File): Boolean {
+        // example
+        // java version "17.0.6" 2023-01-17 LTS
+        // Java(TM) SE Runtime Environment (build 17.0.6+9-LTS-190)
+        // Java HotSpot(TM) 64-Bit Server VM (build 17.0.6+9-LTS-190, mixed mode, sharing)
+        val text = runProcessAndGetAllText(listOf(javaPath.absolutePath, "-version"))[0]
+        val javaString = text.substring(text.indexOf('\"') + 1, text.lastIndexOf('\"'))
+        val split = javaString.split(versionSplitPattern).map { it.toInt() }
+        log.info("$javaString $split")
+
+        return if(instanceSettings.javaVersion < 10) {
+            split[0] == 1 && split[1] == instanceSettings.javaVersion
+        } else { // after java 11
+            split[0] == instanceSettings.javaVersion
         }
     }
 }
