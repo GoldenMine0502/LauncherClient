@@ -153,14 +153,14 @@ class MinecraftDataDownloader(
         type: String,
         request: (param: String) -> Call<ResponseBody>,
         check: (param: String) -> Call<MD5Response>,
-        checkMD5: Boolean = true
+        checkMD5: Boolean = true,
+        customFileName: String = fileName,
     ) {
         directory.mkdirs()
-        val file = File(directory, fileName)
+        val file = File(directory, customFileName)
 //        if(!file.exists()) file.createNewFile()
 
         val md5Server = check.invoke(fileName).execute().body()?.md5
-
 
         if (!file.exists() || (checkMD5 && getFileMD5(file) != md5Server)) {
             launcherSettings.logToGUI("downloading $type $fileName...")

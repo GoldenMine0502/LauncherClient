@@ -2,7 +2,10 @@ package kr.goldenmine.inuminecraftlauncher.ui
 
 import com.google.common.reflect.TypeToken
 import com.google.gson.Gson
+import kr.goldenmine.inuminecraftlauncher.InstanceSettings
 import kr.goldenmine.inuminecraftlauncher.LauncherSettings
+import kr.goldenmine.inuminecraftlauncher.download.ServerRequest
+import kr.goldenmine.inuminecraftlauncher.instances.getInstanceName
 import kr.goldenmine.inuminecraftlauncher.launcher.MinecraftCommandBuilder
 import kr.goldenmine.inuminecraftlauncher.launcher.MinecraftDataDownloader
 import kr.goldenmine.inuminecraftlauncher.launcher.MinecraftDownloader
@@ -16,6 +19,7 @@ import net.technicpack.utilslib.DesktopUtils
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import retrofit2.Call
+import retrofit2.Callback
 import retrofit2.Response
 import java.io.*
 import java.util.concurrent.ExecutionException
@@ -66,10 +70,45 @@ class MainFrameController(
         mainFrame.loginMicrosoft.addActionListener { tryMicrosoftLogin() }
         mainFrame.loginGuest.addActionListener { tryGuestLogin() }
         mainFrame.logoutMicrosoft.addActionListener { logout() }
+        mainFrame.instanceSelection.addActionListener {
+            val selectedVersion = mainFrame.instanceSelection.selectedItem as String
+            val instanceName = getInstanceName(selectedVersion)
+            if(instanceName != null) {
+                changeVersion(instanceName)
+            } else {
+                addLog("none is selected.")
+            }
+        }
     }
 
     fun addLog(text: String?) {
         launcherSettings.logToGUI(text)
+    }
+
+    fun changeVersion(version: String) {
+        disableLoginButton()
+
+        ServerRequest.SERVICE.getInstanceSetting(version).enqueue(object : Callback<InstanceSettings> {
+            override fun onResponse(call: Call<InstanceSettings>, response: Response<InstanceSettings>) {
+                if(response.isSuccessful) {
+                    val instanceSettings = response.body()
+                    if(instanceSettings != null) {
+                        launcherSettings.instanceSettings = instanceSettings
+                        addLog("set instance settings to: ${launcherSettings.instanceSettings.instanceName}")
+                        enableLoginButton()
+                    } else {
+                        addLog("none is received.")
+                    }
+                } else {
+                    addLog("failed to get data.")
+                }
+            }
+
+            override fun onFailure(call: Call<InstanceSettings>, t: Throwable) {
+                addLog("failed to connect to server: $version")
+            }
+
+        })
     }
 
     fun logout() {
