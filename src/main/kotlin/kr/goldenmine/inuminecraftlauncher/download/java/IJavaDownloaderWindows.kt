@@ -33,6 +33,9 @@ class IJavaDownloaderWindows(
 
         val dstFileName = "$dstFolderName.zip"
 
+        val dstFolder = File(folder, dstFolderName)
+        dstFolder.mkdirs()
+
         val dstFile = File(folder, dstFileName)
 
         val md5 = ServerRequest.SERVICE.checkJava(osName, dstFileName).execute().body()?.md5
@@ -44,6 +47,7 @@ class IJavaDownloaderWindows(
             if(response.isSuccessful) {
                 val body = response.body()
                 if(body != null) {
+
                     writeResponseBodyToDisk(dstFile, body)
                 }
             }
@@ -59,9 +63,8 @@ class IJavaDownloaderWindows(
         }
 
         /* unzip java */
-        val dstFolder = File(folder, dstFolderName)
         val compress = Compress()
-        compress.unZip(dstFile.path, dstFolder.path)
+        compress.unZip(dstFile.path, folder.path)
     }
 
     override fun findAllExistingJava(): List<File> {
