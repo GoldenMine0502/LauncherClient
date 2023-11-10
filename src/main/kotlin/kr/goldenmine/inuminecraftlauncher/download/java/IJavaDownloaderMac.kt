@@ -9,6 +9,7 @@ import org.slf4j.LoggerFactory
 import java.io.File
 import java.util.regex.Pattern
 import javax.naming.OperationNotSupportedException
+import kotlin.streams.toList
 
 @Slf4j
 class IJavaDownloaderMac(
@@ -60,9 +61,9 @@ class IJavaDownloaderMac(
         val defaultJava = File("/usr/bin/java")
         javaList.add(defaultJava)
 
-        return javaList.filter {
+        return javaList.parallelStream().filter {
             checkVersionSame(it)
-        }
+        }.toList()
     }
 
     private val versionSplitPattern = Pattern.compile("[\\._]")
