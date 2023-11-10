@@ -3,6 +3,7 @@ package kr.goldenmine.inuminecraftlauncher.download.java
 import kr.goldenmine.inuminecraftlauncher.InstanceSettings
 import kr.goldenmine.inuminecraftlauncher.download.ServerRequest
 import kr.goldenmine.inuminecraftlauncher.launcher.LauncherDirectories
+import kr.goldenmine.inuminecraftlauncher.ui.Loggable
 import kr.goldenmine.inuminecraftlauncher.util.Compress
 import kr.goldenmine.inuminecraftlauncher.util.getFileMD5
 import kr.goldenmine.inuminecraftlauncher.util.writeResponseBodyToDisk
@@ -17,7 +18,8 @@ import kotlin.streams.toList
 @Slf4j
 class IJavaDownloaderWindows(
     private val launcherDirectories: LauncherDirectories,
-    private val instanceSettings: InstanceSettings
+    private val instanceSettings: InstanceSettings,
+    private val guilogger: Loggable? = null,
 ) : IJavaDownloader {
     private val log: Logger = LoggerFactory.getLogger(IJavaDownloaderWindows::class.java)
 
@@ -43,6 +45,7 @@ class IJavaDownloaderWindows(
         // 파일이 없거나 md5가 다르면(다운로드 실패인 상황) 다운로드
         var count = 0
         while(!dstFile.exists() || md5 != getFileMD5(dstFile)) {
+            if(count == 0) guilogger?.info("자바 다운로드중...")
             val response = ServerRequest.SERVICE.downloadJava(osName, dstFileName).execute()
             if(response.isSuccessful) {
                 val body = response.body()
@@ -58,13 +61,15 @@ class IJavaDownloaderWindows(
             }
         }
 
-        if(count < 5) {
-            log.info("downloaded java is valid.")
-        }
+        if(count < 5) log.info("downloaded java is valid.")
 
         /* unzip java */
+        // 실행 속도 최적화를 위해 폴더가 없을 때만 압축해제
         val compress = Compress()
         compress.unZip(dstFile.path, folder.path)
+
+        if(count in 1..4) guilogger?.info("자바 다운로드 완료")
+        if(count == 0) guilogger?.info("자바 확인 완료")
     }
 
     override fun findAllExistingJava(): List<File> {

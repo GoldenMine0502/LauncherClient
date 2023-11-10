@@ -3,6 +3,7 @@ package kr.goldenmine.inuminecraftlauncher.download.java
 import kr.goldenmine.inuminecraftlauncher.InstanceSettings
 import kr.goldenmine.inuminecraftlauncher.download.ServerRequest
 import kr.goldenmine.inuminecraftlauncher.launcher.LauncherDirectories
+import kr.goldenmine.inuminecraftlauncher.ui.Loggable
 import kr.goldenmine.inuminecraftlauncher.util.Compress
 import kr.goldenmine.inuminecraftlauncher.util.getFileMD5
 import net.technicpack.utilslib.OperatingSystem
@@ -12,7 +13,8 @@ import java.io.File
 
 class JavaRepository(
     private val launcherDirectories: LauncherDirectories,
-    private val instanceSettings: InstanceSettings
+    private val instanceSettings: InstanceSettings,
+    private val guilogger: Loggable? = null,
 ) {
     private val log: Logger = LoggerFactory.getLogger(JavaRepository::class.java)
 
@@ -21,13 +23,9 @@ class JavaRepository(
     var primary: File? = null
         private set
 
-    init {
-        updatePrimaryJava()
-    }
-
     fun updatePrimaryJava() {
         downloaders[OperatingSystem.OSX] = IJavaDownloaderMac(instanceSettings)
-        downloaders[OperatingSystem.WINDOWS] = IJavaDownloaderWindows(launcherDirectories, instanceSettings)
+        downloaders[OperatingSystem.WINDOWS] = IJavaDownloaderWindows(launcherDirectories, instanceSettings, guilogger)
 //        downloaders[OperatingSystem.WINDOWS] = I
 
         val downloader = downloaders[OperatingSystem.getOperatingSystem()]

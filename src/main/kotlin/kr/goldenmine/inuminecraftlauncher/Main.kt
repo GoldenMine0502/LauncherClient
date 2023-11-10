@@ -1,7 +1,11 @@
 package kr.goldenmine.inuminecraftlauncher
 
 import com.google.gson.GsonBuilder
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import kr.goldenmine.inuminecraftlauncher.download.ServerRequest
+import kr.goldenmine.inuminecraftlauncher.download.java.JavaRepository
 import kr.goldenmine.inuminecraftlauncher.instances.getFirstInstance
 import kr.goldenmine.inuminecraftlauncher.launcher.DefaultLauncherDirectories
 import kr.goldenmine.inuminecraftlauncher.ui.LoggerGUI
@@ -36,14 +40,22 @@ object Main {
 
         log.info(GsonBuilder().setPrettyPrinting().create().toJson(instanceSettings))
         val mainFrame = MainFrame(instanceSettings?.version)
+        mainFrame.disableLoginButton()
 
         val launcherDirectories = DefaultLauncherDirectories(mainFolder)
 
         val guilogger = LoggerGUI(mainFrame)
         if(instanceSettings != null) {
+            val javaRepository = JavaRepository(launcherDirectories, instanceSettings, guilogger)
+            CoroutineScope(Dispatchers.IO).launch {
+                javaRepository.updatePrimaryJava()
+                mainFrame.enableLoginButton()
+            }
+            
             val launcherSettings = LauncherSettings(
                 launcherDirectories,
                 instanceSettings,
+                javaRepository,
                 width = 854,
                 height = 480,
                 guilogger = guilogger
@@ -57,7 +69,9 @@ object Main {
             guilogger.info("")
             guilogger.info("실행시 프로그램 설치 경로에 영어만 있어야 합니다.")
 
+
             val mainFrameController = MainFrameController(launcherSettings, mainFrame)
+
             mainFrameController.init()
         } else {
             guilogger.info("failed to connect server.")

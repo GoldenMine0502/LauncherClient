@@ -13,11 +13,11 @@ import kr.goldenmine.launchercore.UserAdministrator
 class LauncherSettings(
     val launcherDirectories: LauncherDirectories,
     var instanceSettings: InstanceSettings,
+    val javaRepository: JavaRepository,
     val width: Int? = null,
     val height: Int? = null,
     val guilogger: Loggable
 //    val overrideJavaPath: String? = null,
 ) {
     val userAdministrator = UserAdministrator(launcherDirectories)
-    val javaRepository = JavaRepository(launcherDirectories, instanceSettings)
 }

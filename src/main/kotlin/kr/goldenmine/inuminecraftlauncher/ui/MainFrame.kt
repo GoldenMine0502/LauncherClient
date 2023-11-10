@@ -66,4 +66,16 @@ class MainFrame(version: String?) : JFrame("INU Minecraft Launcher $version") {
         val y = monitorHeight / 2 - height / 2
         setBounds(x, y, width, height)
     }
+
+    fun disableLoginButton() {
+        instanceSelection.isEnabled = false
+        loginMicrosoft.isEnabled = false
+        loginGuest.isEnabled = false
+    }
+
+    fun enableLoginButton() {
+        instanceSelection.isEnabled = true
+        loginMicrosoft.isEnabled = true
+        loginGuest.isEnabled = true
+    }
 }

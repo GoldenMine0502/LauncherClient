@@ -97,7 +97,7 @@ class MainFrameController(
                         CoroutineScope(Dispatchers.IO).launch {
                             launcherSettings.javaRepository.updatePrimaryJava()
                             addLog("set instance settings to: ${launcherSettings.instanceSettings.instanceName}")
-                            enableLoginButton()
+                            mainFrame.enableLoginButton()
                         }
                     } else {
                         addLog("none is received.")
@@ -156,7 +156,7 @@ class MainFrameController(
     }
 
     private fun tryGuestLogin() {
-        disableLoginButton()
+        mainFrame.disableLoginButton()
 //        addLog("pressed guest login")
         printGuestStatus()
         LauncherServerService.LAUNCHER_SERVER.requestRandomAccount().enqueue(object : retrofit2.Callback<MinecraftAccount> {
@@ -169,7 +169,7 @@ class MainFrameController(
                     addLog("failed to get token.")
                     addLog("이미 모든 게스트가 사용 중이거나, ")
                     addLog("최근에 게스트를 사용하였습니다.")
-                    enableLoginButton()
+                    mainFrame.enableLoginButton()
                 }
             }
 
@@ -177,13 +177,13 @@ class MainFrameController(
                 addLog("failed to get token. failed to connect server")
                 addLog("서버에 연결할 수 없습니다.")
                 addLog("연결에 실패했습니다. 관리자에게 문의해주세요.")
-                enableLoginButton()
+                mainFrame.enableLoginButton()
             }
         })
     }
 
     private fun tryMicrosoftLogin() {
-        disableLoginButton()
+        mainFrame.disableLoginButton()
 //        addLog("pressed microsoft login")
         Thread {
             try {
@@ -207,7 +207,7 @@ class MainFrameController(
                 log.error(ex.message, ex)
                 addLog(ex.message)
             } finally {
-                enableLoginButton()
+                mainFrame.enableLoginButton()
             }
         }.start()
     }
@@ -231,18 +231,6 @@ class MainFrameController(
         addLog("launching minecraft...")
         val code = launcher.launchMinecraft()
         addLog("process finished with exit code $code")
-        enableLoginButton()
-    }
-
-    fun disableLoginButton() {
-        mainFrame.instanceSelection.isEnabled = false
-        mainFrame.loginMicrosoft.isEnabled = false
-        mainFrame.loginGuest.isEnabled = false
-    }
-
-    fun enableLoginButton() {
-        mainFrame.instanceSelection.isEnabled = true
-        mainFrame.loginMicrosoft.isEnabled = true
-        mainFrame.loginGuest.isEnabled = true
+        mainFrame.enableLoginButton()
     }
 }
