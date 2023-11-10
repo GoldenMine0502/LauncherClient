@@ -30,7 +30,7 @@ class MinecraftAssetDownloadTask(
 
         val url = "https://resources.download.minecraft.net/${asset.hash.substring(0, 2)}/${asset.hash}"
 
-        launcherSettings.logToGUI("downloading asset ${asset.hash}...")
+        launcherSettings.guilogger.info("downloading asset ${asset.hash}...")
 
         val response = AssetService.MINECRAFT_API.downloadFromUrl(url).execute()
         if (response.isSuccessful) {

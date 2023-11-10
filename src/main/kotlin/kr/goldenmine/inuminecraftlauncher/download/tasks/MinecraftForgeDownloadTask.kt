@@ -28,7 +28,7 @@ class MinecraftForgeDownloadTask(
                         versions.firstOrNull { it == version || it == "$id-$version" }
 
 //                println(repository)
-                launcherSettings.logToGUI("downloading forge $version...")
+                launcherSettings.guilogger.info("downloading forge $version...")
                 log.info("downloading version $version")
 
                 if (version != null) {
