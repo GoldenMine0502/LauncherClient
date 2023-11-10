@@ -235,11 +235,13 @@ class MainFrameController(
     }
 
     fun disableLoginButton() {
+        mainFrame.instanceSelection.isEnabled = false
         mainFrame.loginMicrosoft.isEnabled = false
         mainFrame.loginGuest.isEnabled = false
     }
 
     fun enableLoginButton() {
+        mainFrame.instanceSelection.isEnabled = true
         mainFrame.loginMicrosoft.isEnabled = true
         mainFrame.loginGuest.isEnabled = true
     }
