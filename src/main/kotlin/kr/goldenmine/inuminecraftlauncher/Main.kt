@@ -2,6 +2,7 @@ package kr.goldenmine.inuminecraftlauncher
 
 import com.google.gson.GsonBuilder
 import kr.goldenmine.inuminecraftlauncher.download.ServerRequest
+import kr.goldenmine.inuminecraftlauncher.instances.getDefaultInstance
 import kr.goldenmine.inuminecraftlauncher.launcher.DefaultLauncherDirectories
 import kr.goldenmine.inuminecraftlauncher.ui.DefaultLoggerGUI
 import kr.goldenmine.inuminecraftlauncher.ui.MainFrame
@@ -24,30 +25,8 @@ object Main {
                 DevelopmentConfiguration.IS_DEVELOPMENT_LOGGER = args[1].toBoolean()
         }
 
-//        WebDriverManager.chromedriver().setup()
-//        val builder = SpringApplicationBuilder(CoreMain::class.java)
-//        builder.headless(false)
-//        val context = builder.run(*args)
-
-        /*
-chiselsandbits-1.0.43.jar
-ftb-backups-2.1.2.2.jar
-immersive-portals-0.17-mc1.16.5-forge.jar
-inumodelloader-1.1.2-SNAPSHOT.jar.disabled
-inumodelloader-1.2.3-SNAPSHOT.jar.disabled
-inumodelloader-1.2.4-SNAPSHOT.jar.disabled
-inumodelloader-1.2.8-SNAPSHOT.jar.disabled
-inumodelloader-1.3.0-SNAPSHOT.jar.disabled
-inumodelloader-1.3.2-SNAPSHOT.jar.disabled
-inumodelloader-1.3.4-SNAPSHOT.jar
-test.jar
-thutcore-1.16.4-8.2.0.jar
-thuttech-1.16.4-9.1.2.jar
-worldedit-mod-7.2.5-dist.jar
-         */
         val mainFolder = File("inulauncher")
-        val versionFile = File(mainFolder, "version.txt")
-        val version = versionFile.readText()
+        val version = getDefaultInstance().instanceName
 
         val instanceSettings = try {
             ServerRequest.SERVICE.getInstanceSetting(version).execute().body()
@@ -57,7 +36,6 @@ worldedit-mod-7.2.5-dist.jar
 
         log.info(GsonBuilder().setPrettyPrinting().create().toJson(instanceSettings))
         val mainFrame = MainFrame(instanceSettings?.version)
-
 
         val launcherDirectories = DefaultLauncherDirectories(mainFolder)
 

@@ -22,7 +22,7 @@ class JavaRepository(
         private set
 
     init {
-        downloaders[OperatingSystem.OSX] = IJavaDownloaderMac()
+        downloaders[OperatingSystem.OSX] = IJavaDownloaderMac(instanceSettings)
         downloaders[OperatingSystem.WINDOWS] = IJavaDownloaderWindows(launcherDirectories, instanceSettings)
 //        downloaders[OperatingSystem.WINDOWS] = I
 
@@ -37,19 +37,14 @@ class JavaRepository(
 
             if (downloader != null) {
                 val javaList = downloader.findAllExistingJava()
-                javaList.forEach {
-                    log.info(it.absolutePath)
-                }
-                val bestVersions = downloader.getJavaVersionName(instanceSettings.javaVersion)
 
-                val java = javaList.firstOrNull { file->
-                    val c = bestVersions.count { version -> file.name.contains(version) }
-
-                    c > 0
+                // logging for debug
+                javaList.forEachIndexed { i, file ->
+                    log.info("java $i: ${file.absolutePath} ${file.exists()}")
                 }
 
-                if (java != null) {
-                    primary = java
+                if (javaList.isNotEmpty()) {
+                    primary = javaList.first()
                     log.info("set java version to ${primary?.path}")
                 } else {
                     log.error("no java found.")

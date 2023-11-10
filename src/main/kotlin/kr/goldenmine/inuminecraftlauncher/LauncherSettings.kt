@@ -12,7 +12,7 @@ import kr.goldenmine.launchercore.UserAdministrator
  */
 class LauncherSettings(
     val launcherDirectories: LauncherDirectories,
-    val instanceSettings: InstanceSettings,
+    var instanceSettings: InstanceSettings,
     val width: Int? = null,
     val height: Int? = null,
     private val loggerGUI: LoggerGUI

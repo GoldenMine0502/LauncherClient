@@ -18,9 +18,6 @@ class IJavaDownloaderWindows(
 ) : IJavaDownloader {
     private val log: Logger = LoggerFactory.getLogger(IJavaDownloaderWindows::class.java)
 
-    override val javaRoute: String
-        get() = "bin/java.exe"
-
     override val operatingSystem: OperatingSystem
         get() = OperatingSystem.WINDOWS
 
@@ -54,6 +51,8 @@ class IJavaDownloaderWindows(
             "C:/Program Files (x86)/Java"
         )
 
+        val javaRoute = "bin/java.exe"
+
         val javaList = routes.flatMap { route ->
             val folder = File(route)
 
@@ -62,13 +61,5 @@ class IJavaDownloaderWindows(
         }
 
         return javaList
-    }
-
-    override fun getJavaVersionName(version: Int): List<String> {
-        if(version < 10) {
-            return listOf("1.$version", "-$version")
-        } else {
-            return listOf("$version")
-        }
     }
 }
