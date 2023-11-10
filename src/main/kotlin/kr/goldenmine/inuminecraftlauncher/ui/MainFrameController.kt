@@ -2,6 +2,7 @@ package kr.goldenmine.inuminecraftlauncher.ui
 
 import com.google.common.reflect.TypeToken
 import com.google.gson.Gson
+import kotlinx.coroutines.*
 import kr.goldenmine.inuminecraftlauncher.InstanceSettings
 import kr.goldenmine.inuminecraftlauncher.LauncherSettings
 import kr.goldenmine.inuminecraftlauncher.download.ServerRequest
@@ -86,16 +87,18 @@ class MainFrameController(
     }
 
     fun changeVersion(version: String) {
-        disableLoginButton()
-
         ServerRequest.SERVICE.getInstanceSetting(version).enqueue(object : Callback<InstanceSettings> {
             override fun onResponse(call: Call<InstanceSettings>, response: Response<InstanceSettings>) {
                 if(response.isSuccessful) {
                     val instanceSettings = response.body()
                     if(instanceSettings != null) {
                         launcherSettings.instanceSettings = instanceSettings
-                        addLog("set instance settings to: ${launcherSettings.instanceSettings.instanceName}")
-                        enableLoginButton()
+
+                        CoroutineScope(Dispatchers.IO).launch {
+                            launcherSettings.javaRepository.updatePrimaryJava()
+                            addLog("set instance settings to: ${launcherSettings.instanceSettings.instanceName}")
+                            enableLoginButton()
+                        }
                     } else {
                         addLog("none is received.")
                     }
