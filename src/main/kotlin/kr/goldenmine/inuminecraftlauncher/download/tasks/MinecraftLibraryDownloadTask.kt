@@ -29,7 +29,7 @@ class MinecraftLibraryDownloadTask(
             return true
         }
 
-        launcherSettings.logToGUI("downloading library ${artifact.path}...")
+        launcherSettings.guilogger.info("downloading library ${artifact.path}...")
         val execute = AssetService.MINECRAFT_API.downloadFromUrl(artifact.url).execute()
         val body = execute.body()
 

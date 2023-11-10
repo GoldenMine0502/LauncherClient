@@ -2,6 +2,7 @@ package kr.goldenmine.inuminecraftlauncher.ui
 
 import com.google.common.reflect.TypeToken
 import com.google.gson.Gson
+import kotlinx.coroutines.*
 import kr.goldenmine.inuminecraftlauncher.InstanceSettings
 import kr.goldenmine.inuminecraftlauncher.LauncherSettings
 import kr.goldenmine.inuminecraftlauncher.download.ServerRequest
@@ -82,20 +83,22 @@ class MainFrameController(
     }
 
     fun addLog(text: String?) {
-        launcherSettings.logToGUI(text)
+        launcherSettings.guilogger.info(text)
     }
 
     fun changeVersion(version: String) {
-        disableLoginButton()
-
         ServerRequest.SERVICE.getInstanceSetting(version).enqueue(object : Callback<InstanceSettings> {
             override fun onResponse(call: Call<InstanceSettings>, response: Response<InstanceSettings>) {
                 if(response.isSuccessful) {
                     val instanceSettings = response.body()
                     if(instanceSettings != null) {
                         launcherSettings.instanceSettings = instanceSettings
-                        addLog("set instance settings to: ${launcherSettings.instanceSettings.instanceName}")
-                        enableLoginButton()
+
+                        CoroutineScope(Dispatchers.IO).launch {
+                            launcherSettings.javaRepository.updatePrimaryJava()
+                            addLog("set instance settings to: ${launcherSettings.instanceSettings.instanceName}")
+                            mainFrame.enableLoginButton()
+                        }
                     } else {
                         addLog("none is received.")
                     }
@@ -153,7 +156,7 @@ class MainFrameController(
     }
 
     private fun tryGuestLogin() {
-        disableLoginButton()
+        mainFrame.disableLoginButton()
 //        addLog("pressed guest login")
         printGuestStatus()
         LauncherServerService.LAUNCHER_SERVER.requestRandomAccount().enqueue(object : retrofit2.Callback<MinecraftAccount> {
@@ -166,7 +169,7 @@ class MainFrameController(
                     addLog("failed to get token.")
                     addLog("이미 모든 게스트가 사용 중이거나, ")
                     addLog("최근에 게스트를 사용하였습니다.")
-                    enableLoginButton()
+                    mainFrame.enableLoginButton()
                 }
             }
 
@@ -174,13 +177,13 @@ class MainFrameController(
                 addLog("failed to get token. failed to connect server")
                 addLog("서버에 연결할 수 없습니다.")
                 addLog("연결에 실패했습니다. 관리자에게 문의해주세요.")
-                enableLoginButton()
+                mainFrame.enableLoginButton()
             }
         })
     }
 
     private fun tryMicrosoftLogin() {
-        disableLoginButton()
+        mainFrame.disableLoginButton()
 //        addLog("pressed microsoft login")
         Thread {
             try {
@@ -204,7 +207,7 @@ class MainFrameController(
                 log.error(ex.message, ex)
                 addLog(ex.message)
             } finally {
-                enableLoginButton()
+                mainFrame.enableLoginButton()
             }
         }.start()
     }
@@ -228,16 +231,6 @@ class MainFrameController(
         addLog("launching minecraft...")
         val code = launcher.launchMinecraft()
         addLog("process finished with exit code $code")
-        enableLoginButton()
-    }
-
-    fun disableLoginButton() {
-        mainFrame.loginMicrosoft.isEnabled = false
-        mainFrame.loginGuest.isEnabled = false
-    }
-
-    fun enableLoginButton() {
-        mainFrame.loginMicrosoft.isEnabled = true
-        mainFrame.loginGuest.isEnabled = true
+        mainFrame.enableLoginButton()
     }
 }

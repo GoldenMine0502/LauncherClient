@@ -163,7 +163,7 @@ class MinecraftDataDownloader(
         val md5Server = check.invoke(fileName).execute().body()?.md5
 
         if (!file.exists() || (checkMD5 && getFileMD5(file) != md5Server)) {
-            launcherSettings.logToGUI("downloading $type $fileName...")
+            launcherSettings.guilogger.info("downloading $type $fileName...")
             log.info("server: $md5Server client: ${if(file.exists()) getFileMD5(file) else null}")
 
             val response = request.invoke(fileName).execute()

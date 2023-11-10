@@ -34,6 +34,7 @@ dependencies {
 //    // https://mvnrepository.com/artifact/org.apache.commons/commons-compress
 //    implementation("org.apache.commons:commons-compress:1.23.0")
 
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.7.3")
 
     annotationProcessor("org.projectlombok:lombok:1.18.24")
     implementation("org.projectlombok:lombok:1.18.24")

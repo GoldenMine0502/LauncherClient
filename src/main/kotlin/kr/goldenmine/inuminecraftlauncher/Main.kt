@@ -1,10 +1,14 @@
 package kr.goldenmine.inuminecraftlauncher
 
 import com.google.gson.GsonBuilder
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import kr.goldenmine.inuminecraftlauncher.download.ServerRequest
-import kr.goldenmine.inuminecraftlauncher.instances.getDefaultInstance
+import kr.goldenmine.inuminecraftlauncher.download.java.JavaRepository
+import kr.goldenmine.inuminecraftlauncher.instances.getFirstInstance
 import kr.goldenmine.inuminecraftlauncher.launcher.DefaultLauncherDirectories
-import kr.goldenmine.inuminecraftlauncher.ui.DefaultLoggerGUI
+import kr.goldenmine.inuminecraftlauncher.ui.LoggerGUI
 import kr.goldenmine.inuminecraftlauncher.ui.MainFrame
 import kr.goldenmine.inuminecraftlauncher.ui.MainFrameController
 import org.slf4j.Logger
@@ -26,7 +30,7 @@ object Main {
         }
 
         val mainFolder = File("inulauncher")
-        val version = getDefaultInstance().instanceName
+        val version = getFirstInstance().instanceName
 
         val instanceSettings = try {
             ServerRequest.SERVICE.getInstanceSetting(version).execute().body()
@@ -36,31 +40,42 @@ object Main {
 
         log.info(GsonBuilder().setPrettyPrinting().create().toJson(instanceSettings))
         val mainFrame = MainFrame(instanceSettings?.version)
+        mainFrame.disableLoginButton()
 
         val launcherDirectories = DefaultLauncherDirectories(mainFolder)
 
+        val guilogger = LoggerGUI(mainFrame)
         if(instanceSettings != null) {
-            val loggerGUI = DefaultLoggerGUI(mainFrame)
+            val javaRepository = JavaRepository(launcherDirectories, instanceSettings, guilogger)
+            CoroutineScope(Dispatchers.IO).launch {
+                javaRepository.updatePrimaryJava()
+                mainFrame.enableLoginButton()
+            }
+            
             val launcherSettings = LauncherSettings(
                 launcherDirectories,
                 instanceSettings,
+                javaRepository,
                 width = 854,
                 height = 480,
-                loggerGUI = loggerGUI
+                guilogger = guilogger
 //            overrideJavaPath = "/Library/Java/JavaVirtualMachines/jdk1.8.0_202.jdk/Contents/Home/bin/java"
             )
 
-            launcherSettings.logToGUI("")
-            launcherSettings.logToGUI("==================================")
-            launcherSettings.logToGUI("디스코드 입장을 권장합니다: https://discord.gg/4MXcmE67UU")
-            launcherSettings.logToGUI("==================================")
-            launcherSettings.logToGUI("")
-            launcherSettings.logToGUI("실행시 프로그램 설치 경로에 영어만 있어야 합니다.")
+            guilogger.info("")
+            guilogger.info("==================================")
+            guilogger.info("디스코드 입장을 권장합니다: https://discord.gg/4MXcmE67UU")
+            guilogger.info("==================================")
+            guilogger.info("")
+            guilogger.info("실행시 프로그램 설치 경로에 영어만 있어야 합니다.")
+
 
             val mainFrameController = MainFrameController(launcherSettings, mainFrame)
+
             mainFrameController.init()
         } else {
-            mainFrame.logArea.append("failed to connect server.\nplease restart this program.")
+            guilogger.info("failed to connect server.")
+            guilogger.info("please restart this program.")
         }
         //        MinecraftOptions options = new MinecraftOptions(new File("java/jdk-8u202/bin/java"), new ArrayList<>(), 36);
     }
