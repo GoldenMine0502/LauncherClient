@@ -9,8 +9,8 @@ enum class InstanceList(
     val displayName: String,
     val strategy: DownloadStrategy
 ) {
-    INU1165_low("inu1165low", "저사양", StrategyLow()),
-    INU1165_high("inu1165", "고사양", StrategyHigh())
+    INU1165low("inu1165low", "저사양", StrategyLow()),
+    INU1165high("inu1165", "고사양", StrategyHigh())
 
 }
 
