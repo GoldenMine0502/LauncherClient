@@ -64,7 +64,6 @@ class IJavaDownloaderWindows(
         if(count < 5) log.info("downloaded java is valid.")
 
         /* unzip java */
-        // 실행 속도 최적화를 위해 폴더가 없을 때만 압축해제
         val compress = Compress()
         compress.unZip(dstFile.path, folder.path)
 
