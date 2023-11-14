@@ -3,10 +3,12 @@ package kr.goldenmine.inuminecraftlauncher.ui
 import kr.goldenmine.inuminecraftlauncher.instances.InstanceList
 import lombok.extern.slf4j.Slf4j
 import java.awt.GraphicsEnvironment
+import java.io.PrintWriter
+import java.io.StringWriter
 import javax.swing.*
 
 @Slf4j
-class MainFrame(version: String?) : JFrame("INU Minecraft Launcher $version") {
+class MainFrame(version: String?) : JFrame("INU Minecraft Launcher $version"), Loggable {
 //    val microsoftId = JTextField()
 //    val microsoftPassword = JPasswordField()
     val loginMicrosoft = JButton("마이크로소프트로 로그인")
@@ -77,5 +79,33 @@ class MainFrame(version: String?) : JFrame("INU Minecraft Launcher $version") {
         instanceSelection.isEnabled = true
         loginMicrosoft.isEnabled = true
         loginGuest.isEnabled = true
+    }
+
+    override fun info(text: String?) {
+        synchronized(this) {
+            logArea.append("$text\n")
+        }
+    }
+
+    override fun warn(text: String?) {
+        synchronized(this) {
+            logArea.append("warn: $text\n")
+        }
+    }
+
+    override fun error(text: String?, ex: Throwable?) {
+
+        if(ex != null) {
+            val stringWriter = StringWriter()
+            ex.printStackTrace(PrintWriter(stringWriter))
+            synchronized(this) {
+                logArea.append("error: $text\n")
+                logArea.append("cause: $stringWriter")
+            }
+        } else {
+            synchronized(this) {
+                logArea.append("error: $text\n")
+            }
+        }
     }
 }

@@ -8,7 +8,6 @@ import kr.goldenmine.inuminecraftlauncher.download.ServerRequest
 import kr.goldenmine.inuminecraftlauncher.download.java.JavaRepository
 import kr.goldenmine.inuminecraftlauncher.instances.getFirstInstance
 import kr.goldenmine.inuminecraftlauncher.launcher.DefaultLauncherDirectories
-import kr.goldenmine.inuminecraftlauncher.ui.LoggerGUI
 import kr.goldenmine.inuminecraftlauncher.ui.MainFrame
 import kr.goldenmine.inuminecraftlauncher.ui.MainFrameController
 import org.slf4j.Logger
@@ -44,9 +43,8 @@ object Main {
 
         val launcherDirectories = DefaultLauncherDirectories(mainFolder)
 
-        val guilogger = LoggerGUI(mainFrame)
         if(instanceSettings != null) {
-            val javaRepository = JavaRepository(launcherDirectories, instanceSettings, guilogger)
+            val javaRepository = JavaRepository(launcherDirectories, instanceSettings, mainFrame)
             CoroutineScope(Dispatchers.IO).launch {
                 javaRepository.updatePrimaryJava()
                 mainFrame.enableLoginButton()
@@ -58,24 +56,23 @@ object Main {
                 javaRepository,
                 width = 854,
                 height = 480,
-                guilogger = guilogger
+                guilogger = mainFrame
 //            overrideJavaPath = "/Library/Java/JavaVirtualMachines/jdk1.8.0_202.jdk/Contents/Home/bin/java"
             )
 
-            guilogger.info("")
-            guilogger.info("==================================")
-            guilogger.info("디스코드 입장을 권장합니다: https://discord.gg/4MXcmE67UU")
-            guilogger.info("==================================")
-            guilogger.info("")
-            guilogger.info("실행시 프로그램 설치 경로에 영어만 있어야 합니다.")
-
+            mainFrame.info("")
+            mainFrame.info("==================================")
+            mainFrame.info("디스코드 입장을 권장합니다: https://discord.gg/4MXcmE67UU")
+            mainFrame.info("==================================")
+            mainFrame.info("")
+            mainFrame.info("실행시 프로그램 설치 경로에 영어만 있어야 합니다.")
 
             val mainFrameController = MainFrameController(launcherSettings, mainFrame)
 
             mainFrameController.init()
         } else {
-            guilogger.info("failed to connect server.")
-            guilogger.info("please restart this program.")
+            mainFrame.info("failed to connect server.")
+            mainFrame.info("please restart this program.")
         }
         //        MinecraftOptions options = new MinecraftOptions(new File("java/jdk-8u202/bin/java"), new ArrayList<>(), 36);
     }

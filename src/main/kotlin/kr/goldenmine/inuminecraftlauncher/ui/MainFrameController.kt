@@ -83,7 +83,7 @@ class MainFrameController(
     }
 
     fun addLog(text: String?) {
-        launcherSettings.guilogger.info(text)
+        mainFrame.info(text)
     }
 
     fun changeVersion(version: String) {
