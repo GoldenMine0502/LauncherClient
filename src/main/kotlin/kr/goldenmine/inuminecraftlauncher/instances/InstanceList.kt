@@ -11,7 +11,6 @@ enum class InstanceList(
 ) {
     INU1165low("inu1165low", "저사양", StrategyLow()),
     INU1165high("inu1165", "고사양", StrategyHigh())
-
 }
 
 fun getInstanceName(displayName: String): String? {
