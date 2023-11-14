@@ -48,6 +48,8 @@ class JavaRepository(
                 primary = javaList.first()
                 log.info("set java version to ${primary?.path}")
             } else {
+                guilogger?.info("자바가 존재하지 않습니다.")
+                guilogger?.info("자바 ${instanceSettings.javaVersion}을 다운로드해 주십시오.")
                 log.error("no java found.")
             }
         } else {
