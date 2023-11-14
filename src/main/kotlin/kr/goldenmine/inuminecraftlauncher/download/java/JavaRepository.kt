@@ -1,11 +1,8 @@
 package kr.goldenmine.inuminecraftlauncher.download.java
 
 import kr.goldenmine.inuminecraftlauncher.InstanceSettings
-import kr.goldenmine.inuminecraftlauncher.download.ServerRequest
 import kr.goldenmine.inuminecraftlauncher.launcher.LauncherDirectories
 import kr.goldenmine.inuminecraftlauncher.ui.Loggable
-import kr.goldenmine.inuminecraftlauncher.util.Compress
-import kr.goldenmine.inuminecraftlauncher.util.getFileMD5
 import net.technicpack.utilslib.OperatingSystem
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
