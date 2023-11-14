@@ -18,11 +18,18 @@ class LoggerGUI(private val mainFrame: MainFrame): Loggable {
     }
 
     override fun error(text: String?, ex: Throwable?) {
-        mainFrame.logArea.append("error: $text\n")
+
         if(ex != null) {
             val stringWriter = StringWriter()
             ex.printStackTrace(PrintWriter(stringWriter))
-            mainFrame.logArea.append("cause: $stringWriter")
+            synchronized(this) {
+                mainFrame.logArea.append("error: $text\n")
+                mainFrame.logArea.append("cause: $stringWriter")
+            }
+        } else {
+            synchronized(this) {
+                mainFrame.logArea.append("error: $text\n")
+            }
         }
     }
 }
